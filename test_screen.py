@@ -9,12 +9,14 @@ sensorDict = {"RPM": 0,
 
 green = (0, 255, 0)
 black = (0, 0, 0)
+
+pygame.font.init()
 font = pygame.font.Font("cnr.otf", 12)
 
 
 def draw(display):
     display.fill(black)
-    display.blit(exitImage, (0, 540))
+    display.blit(exitImage, (900, 0))
     textRPM = font.render("Engine RPM: " + str(sensorDict["RPM"]), True, green)
     display.blit(textRPM, (0, 0))
 
@@ -26,3 +28,5 @@ def read_OBD(sensors):
 def run(display):  # Main loop of test_screen
     read_OBD(sensorDict)
     draw(display)
+
+

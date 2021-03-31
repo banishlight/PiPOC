@@ -6,7 +6,7 @@ MAXFPS = 60  # Maximum rate the loop will run at
 CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
 if __name__ == '__main__':
     pygame.init()
-    display = pygame.display((1024, 600))
+    display = pygame.display.set_mode((1024, 600))
 
     looping = True
     while looping:  # Main loop of program
