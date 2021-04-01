@@ -7,7 +7,9 @@ print("OBD connection finished")
 
 exitImage = pygame.image.load("icons/Exit_button.png")
 sensorList = [{"Label": "RPM", "Command": obd.commands.RPM, "Value": 0, "Unit": ""},
-              {"Label": "Speed", "Command": obd.commands.RPM, "Value": 0, "Unit": "KM/h"}]
+              {"Label": "Speed", "Command": obd.commands.RPM, "Value": 0, "Unit": " KM/h"},
+              {"Label": "Engine Temp", "Command": obd.commands.COOLANT_TEMP, "Value": 0, "Unit": "°C"},
+              {"Label": "Oil Temp", "Command": obd.commands.OIL_TEMP, "Value": 0, "Unit": "°C"}]
 
 green = (0, 255, 0)
 black = (0, 0, 0)
@@ -20,7 +22,7 @@ def draw(display):
     display.fill(black)
     display.blit(exitImage, (900, 0))
     for a in range(len(sensorList)):
-        text = font.render(sensorList[a]["Label"] + ": " + str(sensorList[a]["Value"]) + " " + sensorList[a]["Unit"],
+        text = font.render(sensorList[a]["Label"] + ": " + str(sensorList[a]["Value"]) + "" + sensorList[a]["Unit"],
                            True, green)
         display.blit(text, (0, a * 24))
 
