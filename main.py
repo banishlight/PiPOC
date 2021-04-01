@@ -13,7 +13,8 @@ if __name__ == '__main__':
         # Check for input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                looping = False
+                pygame.quit()
+                break
 
         # Check menu state
         if menuState == "test":
