@@ -1,5 +1,5 @@
 import pygame
-
+import math
 
 class Circle:
     radius = 0
@@ -20,6 +20,9 @@ class Circle:
         self.colour_outer = colourOuter
 
     def update(self, current):
-        angle = ((current / max) * 270) + 45
-        if angle > 315:
-            angle = 315
+        f = ((current / self.max) * 270)
+        self.line_x = (self.radius * -math.cos(225 - f)) # radians multiplier: 0.0174532925
+        self.line_y = (self.radius * -math.cos(225 - f))
+
+    def draw(self):
+        print("hello world")

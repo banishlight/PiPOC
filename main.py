@@ -1,4 +1,5 @@
 import pygame
+import sys
 import test_screen as TS
 
 menuState = "test"  # a state object
@@ -14,7 +15,7 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-                break
+                sys.exit()
 
         # Check menu state
         if menuState == "test":
