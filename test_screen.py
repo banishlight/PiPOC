@@ -39,6 +39,6 @@ def read_OBD(sensorList):
         sensorList[a]["Value"] = response.value
 
 
-def run(display):  # Main loop of test_screen
+def on_loop(display):  # Main loop of test_screen
     read_OBD(sensorList)
     draw(display)

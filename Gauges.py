@@ -1,6 +1,7 @@
 import pygame
 import math
 
+
 class Circle:
     radius = 0
     x = 0
@@ -21,7 +22,7 @@ class Circle:
 
     def update(self, current):
         f = ((current / self.max) * 270)
-        self.line_x = (self.radius * -math.cos(225 - f)) # radians multiplier: 0.0174532925
+        self.line_x = (self.radius * -math.cos(225 - f))  # radians multiplier: 0.0174532925
         self.line_y = (self.radius * -math.cos(225 - f))
 
     def draw(self):
