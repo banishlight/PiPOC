@@ -2,15 +2,16 @@ import pygame
 import obd
 
 
-#Load Icons
+# Load Icons
 
-#Connect to OBD
+# Connect to OBD
 
-
+def initialize():
+    return
 
 
 def on_loop(display):
-
-
-
     return 0
+
+def unload():
+    return
