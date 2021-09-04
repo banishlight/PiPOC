@@ -1,10 +1,11 @@
 
-def initialize():
-    return
+class Screen:
 
+    def __init__(self):
+        return
 
-def on_loop(display):
-    return 0
+    def on_loop(self):
+        return 0
 
-def unload():
-    return
+    def draw(self):
+        return

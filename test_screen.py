@@ -22,13 +22,8 @@ spacing = 24
 font = pygame.font.Font("cnr.otf", spacing)
 
 
-def draw(display):
-    display.fill(black)
-    display.blit(exitImage, (900, 0))
-    for a in range(len(sensorList)):
-        text = font.render(sensorList[a]["Label"] + ": " + str(sensorList[a]["Value"]) + "" + sensorList[a]["Unit"],
-                           True, green)
-        display.blit(text, (0, a * spacing))
+def initialize():
+    return
 
 
 def read_OBD(sensors):
@@ -41,6 +36,15 @@ def read_OBD(sensors):
 def on_loop(display):  # Main loop of test_screen
     read_OBD(sensorList)
     draw(display)
+
+
+def draw(display):
+    display.fill(black)
+    display.blit(exitImage, (900, 0))
+    for a in range(len(sensorList)):
+        text = font.render(sensorList[a]["Label"] + ": " + str(sensorList[a]["Value"]) + "" + sensorList[a]["Unit"],
+                           True, green)
+        display.blit(text, (0, a * spacing))
 
 
 def unload():
