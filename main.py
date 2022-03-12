@@ -1,16 +1,19 @@
 import pygame
 import sys
-import test_screen as TS
 import Diagnostics as Diag
 import MainMenu as Menu
 import Visualizer as Vis
-import _thread
+import threading
 
 
 def draw(displayPass):
-    MainObj.draw(displayPass)
-    CLOCK.tick(MAXFPS)
-    return 0
+    print("graphic thread starting!")
+    while 1:  # Loop Graphics
+        print("tick")
+        MainObj.draw(displayPass)
+        CLOCK.tick(MAXFPS)
+        pygame.display.flip()  # Update the entire display
+        CLOCK.tick(MAXFPS)  # Cap Logic Rate
 
 
 menuState = "test"  # a state variable
@@ -24,15 +27,18 @@ if __name__ == '__main__':
     MainObj = Menu.Screen()
     ExitCode = 0
 
-    _thread.start_new_thread(draw, display)
+    DrawingThread = threading.Thread(target=draw, args=(display,))
+    DrawingThread.start()
 
     looping = True
     while looping:  # Main loop of program
         # Check for input
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("Program Ending!")
                 pygame.quit()
                 sys.exit()
+            # detect a click event, call click event in MainObj, pass cursor coordinates
 
         # run menu state
         ExitCode = MainObj.on_loop()
@@ -48,5 +54,4 @@ if __name__ == '__main__':
             elif ExitCode == 99:
                 looping = False
 
-        pygame.display.flip()  # Update the entire display
-        CLOCK.tick(TICKRATE)  # Cap Framerate
+        CLOCK.tick(TICKRATE)  # Cap Logic Rate

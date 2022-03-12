@@ -29,6 +29,9 @@ class Screen:
             display.blit(a.image, a.coord)
         return
 
+    def click(self, coord):
+        return
+
 
 class Button:
     image = 0
