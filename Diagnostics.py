@@ -4,6 +4,10 @@ import obd
 # Constants
 BAUDRATE = 500000  # Serial of the connection, varies from adapter to adapter
 BUFFERMAX = 6
+PORTSTR = None
+PROTOCOL = None
+FAST = True
+CHECKVOLTAGE = True
 
 class Screen:
 
@@ -11,7 +15,7 @@ class Screen:
         # Load Icons
 
         # Connect to OBD
-        connection = obd.OBD(portstr=None, baudrate=BAUDRATE, protocol=None, fast=True, timeout=0.1, check_voltage=True)
+        connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=0.1, check_voltage=CHECKVOLTAGE)
         return
 
     def on_loop(self):
