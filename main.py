@@ -3,23 +3,25 @@ import sys
 import Diagnostics as Diag
 import MainMenu as Menu
 import Visualizer as Vis
-import threading
+from threading import Thread, Lock
 
 
 def draw(displayPass):
     print("graphic thread starting!")
     while 1:  # Loop Graphics
         print("tick")
+        MainLock.acquire()
         MainObj.draw(displayPass)
-        CLOCK.tick(MAXFPS)
         pygame.display.flip()  # Update the entire display
-        CLOCK.tick(MAXFPS)  # Cap Logic Rate
+        MainLock.release()
+        CLOCK.tick(MAXFPS)  # Cap Frame Rate
 
 
 menuState = "test"  # a state variable
 MAXFPS = 60  # Maximum rate the loop will run at
 TICKRATE = 12
 CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
+MainLock = Lock()
 if __name__ == '__main__':
     pygame.init()
     display = pygame.display.set_mode((1024, 600))
@@ -27,7 +29,8 @@ if __name__ == '__main__':
     MainObj = Menu.Screen()
     ExitCode = 0
 
-    DrawingThread = threading.Thread(target=draw, args=(display,))
+    # create separate thread for drawing the screen
+    DrawingThread = Thread(target=draw, args=(display,))
     DrawingThread.start()
 
     looping = True
@@ -45,6 +48,7 @@ if __name__ == '__main__':
 
         # Check exit code
         if ExitCode != 0:
+            MainLock.acquire()  # Lock the Main Object from being drawn over
             if ExitCode == 1:
                 MainObj = Menu.Screen()
             elif ExitCode == 2:
@@ -53,5 +57,6 @@ if __name__ == '__main__':
                 MainObj = Vis.Screen()
             elif ExitCode == 99:
                 looping = False
+            MainLock.release()  # Release the Main Object
 
         CLOCK.tick(TICKRATE)  # Cap Logic Rate
