@@ -9,3 +9,6 @@ class Screen:
 
     def draw(self):
         return
+
+    def click(self, coord):
+        return

@@ -1,4 +1,5 @@
 import pygame
+import os
 
 
 class Screen:
@@ -30,13 +31,15 @@ class Screen:
         return
 
     def click(self, coord):
+        if self.buttonList[0].collision.collidePoint(coord):
+            os.system("Shutdown.sh")
         return
 
 
 class Button:
     image = 0
     coord = (0, 0)
-    collision = pygame.rect
+    collision = pygame.Rect
 
     def __init__(self, newXY, imgLoaded, width, height):
         self.coord = newXY

@@ -42,6 +42,9 @@ if __name__ == '__main__':
                 pygame.quit()
                 sys.exit()
             # detect a click event, call click event in MainObj, pass cursor coordinates
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:  # Button 1 is left mouse button
+                    MainObj.click()
 
         # run menu state
         ExitCode = MainObj.on_loop()
