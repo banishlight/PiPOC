@@ -53,8 +53,8 @@ class Screen:
         obj = Button((0, 0), "icons/Exit_button.png", 64, 64)  # Exit button
         self.buttonList.append(obj)
         # Load font
-        self.number_font = pygame.font.FONT("cnr.otf", 80)
-        self.text_font = pygame.font.FONT("cnr.otf", 50)
+        self.number_font = pygame.font.Font("cnr.otf", 80)
+        self.text_font = pygame.font.Font("cnr.otf", 50)
         # Connect to OBD
         self.connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=TIMEOUT,
                                   check_voltage=CHECKVOLTAGE)
@@ -83,7 +83,7 @@ class Screen:
         for a in self.buttonList:
             display.blit(a.image, a.coord)
         # Draw RPM
-        rpm_surf = self.number_font.render(SensorList[1]["final"] + SensorList[1]["label"], True, (255, 255, 255))
+        rpm_surf = self.number_font.render((str(SensorList[1]["final"]) + SensorList[1]["label"]), True, (255, 255, 255))
         display.blit(rpm_surf, (720, 72))
         return
 

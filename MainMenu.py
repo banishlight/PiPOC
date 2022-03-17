@@ -21,7 +21,7 @@ class Screen:
         obj = Button((720, 72), "icons/speedometer.png", 192, 192)
         self.buttonList.append(obj)
         # Settings Button - index 3
-        obj = Button((112, 416), "icons/settings-knobs.png", 192, 192)
+        obj = Button((112, 328), "icons/settings-knobs.png", 192, 192)
         self.buttonList.append(obj)
         # Exit Button - index 4
         obj = Button((0, 0), "icons/Exit_button.png", 64, 64)
