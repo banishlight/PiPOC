@@ -3,6 +3,7 @@ import sys
 import Diagnostics as Diag
 import MainMenu as Menu
 import Visualizer as Vis
+import Settings
 from threading import Thread, Lock
 
 
@@ -62,8 +63,11 @@ if __name__ == '__main__':
                 MainObj = Diag.Screen()
             elif ExitCode == 3:
                 MainObj = Vis.Screen()
+            elif ExitCode == 4:
+                MainObj = Settings.Screen()
             elif ExitCode == 99:
                 looping = False
+                pygame.QUIT
             MainLock.release()  # Release the Main Object
 
         CLOCK.tick(TICKRATE)  # Cap Logic Rate

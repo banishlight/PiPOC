@@ -6,35 +6,48 @@ class Screen:
     BACKGROUND_COLOUR = (112, 112, 112)  # Grey
     # in use
     buttonList = []
+    EXITCODE = 0
 
     def __init__(self):
-        # Power Button
+        self.EXITCODE = 0
+
+        # Power Button - index 0
         obj = Button((112, 72), "icons/power-button.png", 192, 192)
         self.buttonList.append(obj)
-        # Visualizer Button
+        # Visualizer Button - index 1
         obj = Button((416, 72), "icons/sound-waves.png", 192, 192)
         self.buttonList.append(obj)
-        # OBD Button
+        # OBD Button - index 2
         obj = Button((720, 72), "icons/speedometer.png", 192, 192)
         self.buttonList.append(obj)
-        # Settings Button
+        # Settings Button - index 3
         obj = Button((112, 416), "icons/settings-knobs.png", 192, 192)
+        self.buttonList.append(obj)
+        # Exit Button - index 4
+        obj = Button((0, 0), "icons/Exit_button.png", 64, 64)
         self.buttonList.append(obj)
         return
 
     def on_loop(self):
-        return 0
+        return self.EXITCODE
 
     def draw(self, display):
+        display.fill(self.BACKGROUND_COLOUR)
         for a in self.buttonList:
             display.blit(a.image, a.coord)
         return
 
     def click(self, coord):
-        print("Clicked!")
-        if self.buttonList[0].collision.collidepoint(coord):
-            print("power button pressed!")
+        if self.buttonList[0].collision.collidepoint(coord):  # power button clicked
             os.system("bash shutdown.sh")
+        elif self.buttonList[1].collision.collidepoint(coord):  # visualizer button clicked
+            self.EXITCODE = 3
+        elif self.buttonList[2].collision.collidepoint(coord):  # OBD button clicked
+            self.EXITCODE = 2
+        elif self.buttonList[3].collision.collidepoint(coord):  # Settings button clicked
+            self.EXITCODE = 4
+        elif self.buttonList[4].collision.collidepoint(coord):  # Exit button clicked
+            pygame.event.post(pygame.event.Event(pygame.QUIT))
         return
 
 
