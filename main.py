@@ -27,6 +27,8 @@ if __name__ == '__main__':
     pygame.init()
     display = pygame.display.set_mode((1024, 600))
 
+    pygame.font.init()
+
     MainObj = Menu.Screen()
     ExitCode = 0
 
@@ -44,6 +46,7 @@ if __name__ == '__main__':
                 MainLock.acquire()
                 pygame.display.quit()  # fixes a bug where the window won't close
                 MainLock.release()
+                pygame.font.quit()
                 pygame.quit()
                 sys.exit()
             # detect a click event, call click event in MainObj, pass cursor coordinates
