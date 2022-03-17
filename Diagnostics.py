@@ -9,13 +9,15 @@ PROTOCOL = None
 FAST = True
 CHECKVOLTAGE = True
 
+
 class Screen:
 
     def __init__(self):
         # Load Icons
 
         # Connect to OBD
-        connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=0.1, check_voltage=CHECKVOLTAGE)
+        connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=0.1,
+                             check_voltage=CHECKVOLTAGE)
         return
 
     def on_loop(self):

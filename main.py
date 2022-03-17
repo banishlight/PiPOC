@@ -8,8 +8,7 @@ from threading import Thread, Lock
 
 def draw(displayPass):
     print("graphic thread starting!")
-    while 1:  # Loop Graphics
-        print("tick")
+    while DRAWING:  # Loop Graphics
         MainLock.acquire()
         MainObj.draw(displayPass)
         pygame.display.flip()  # Update the entire display
@@ -17,9 +16,10 @@ def draw(displayPass):
         CLOCK.tick(MAXFPS)  # Cap Frame Rate
 
 
-menuState = "test"  # a state variable
 MAXFPS = 60  # Maximum rate the loop will run at
 TICKRATE = 12
+DRAWING = True
+
 CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
 MainLock = Lock()
 if __name__ == '__main__':
@@ -39,14 +39,18 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("Program Ending!")
+                DRAWING = False  # kill DrawingThread before closing
+                MainLock.acquire()
+                pygame.display.quit()  # fixes a bug where the window won't close
+                MainLock.release()
                 pygame.quit()
                 sys.exit()
             # detect a click event, call click event in MainObj, pass cursor coordinates
             elif event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:  # Button 1 is left mouse button
-                    MainObj.click()
+                    MainObj.click(pygame.mouse.get_pos())
 
-        # run menu state
+        # run main loop
         ExitCode = MainObj.on_loop()
 
         # Check exit code
