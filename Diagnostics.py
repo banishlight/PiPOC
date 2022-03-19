@@ -3,23 +3,25 @@ import pygame
 import obd
 
 # Constants
+BACKGROUND_COLOUR = (0, 0, 0)  # Black
+
 PORTSTR = None
 BAUDRATE = 500000  # Serial of the connection, varies from adapter to adapter
 PROTOCOL = None
 FAST = True
 CHECKVOLTAGE = True
-TIMEOUT = 0.1
+TIMEOUT = 1.0
 
 BUFFERMAX = 6
 
 
 class Screen:
-    BACKGROUND_COLOUR = (0, 0, 0)  # Black
     connection = 0
     EXITCODE = 0
-    buttonList = []
+    state = "no connection"
     number_font = 0
     text_font = 0
+    buttonList = []
     SensorList = [{"label": "Speed",
                    "command": obd.commands.SPEED,
                    "final": 0,
@@ -56,42 +58,56 @@ class Screen:
         self.number_font = pygame.font.Font("cnr.otf", 80)
         self.text_font = pygame.font.Font("cnr.otf", 50)
         # Connect to OBD
-        self.connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=TIMEOUT,
-                                  check_voltage=CHECKVOLTAGE)
+        self.connect_obd()
         return
 
     def on_loop(self):
-        # Gather sensors
-        for a in range(len(self.SensorList)):
-            query = self.connection.query(self.SensorList[a]["command"])
-            current_value = query.value.magnitude
+        # OBD connected
+        if self.state == "connected":
+            # Gather sensors
+            for a in range(len(self.SensorList)):
+                query = self.connection.query(self.SensorList[a]["command"])
+                current_value = query.value.magnitude
 
-            if len(self.SensorList[a]["buffer"]) == BUFFERMAX:  # buffer full, remove oldest value
-                self.SensorList[a]["buffer"].pop(0)
-            self.SensorList[a]["buffer"].append(current_value)  # add the newest value to buffer
-            # total up buffer
-            total = 0
-            for b in range(len(self.SensorList[a]["buffer"])):
-                total += self.SensorList[a]["buffer"][b]
-            self.SensorList[a]["final"] = int(total / len(self.SensorList[a]["buffer"]))
+                if len(self.SensorList[a]["buffer"]) == BUFFERMAX:  # buffer full, remove oldest value
+                    self.SensorList[a]["buffer"].pop(0)
+                self.SensorList[a]["buffer"].append(current_value)  # add the newest value to buffer
+                # total up buffer
+                total = 0
+                size = len(self.SensorList[a]["buffer"])
+                for b in range(size):
+                    total += self.SensorList[a]["buffer"][b]
+                # Average value in the buffer is final value
+                self.SensorList[a]["final"] = int(total / size)
+        # OBD not connected
 
         return self.EXITCODE
 
     def draw(self, display):
-        display.fill(self.BACKGROUND_COLOUR)
-        # Draw buttons
-        for a in self.buttonList:
-            display.blit(a.image, a.coord)
-        # Draw RPM
-        rpm_surf = self.number_font.render((str(self.SensorList[1]["final"]) + self.SensorList[1]["label"]), True,
-                                           (255, 255, 255))
-        display.blit(rpm_surf, (720, 72))
+        display.fill(BACKGROUND_COLOUR)
+        if self.state == "connected":
+            # Draw exit button
+            display.blit(self.buttonList[0].image, self.buttonList[0].coord)
+            # Draw RPM
+            rpm_surf = self.number_font.render((str(self.SensorList[1]["final"]) + self.SensorList[1]["label"]), True,
+                                               (255, 255, 255))
+            display.blit(rpm_surf, (720, 72))
         return
 
     def click(self, coord):
         if self.buttonList[0].collision.collidepoint(coord):  # Exit button to main menu
             self.EXITCODE = 1
         return
+
+    def connect_obd(self):
+
+        self.connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=TIMEOUT,
+                                  check_voltage=CHECKVOLTAGE)
+        if self.connection.status() == obd.OBDStatus.CAR_CONNECTED:
+            self.state = "connected"
+        else:
+            self.state = "failed connection"
+        return None
 
 
 class Button:

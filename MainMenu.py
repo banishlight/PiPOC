@@ -39,7 +39,7 @@ class Screen:
 
     def click(self, coord):
         if self.buttonList[0].collision.collidepoint(coord):  # power button clicked
-            os.system("bash shutdown.sh")
+            os.system("bash scripts/shutdown.sh")
         elif self.buttonList[1].collision.collidepoint(coord):  # visualizer button clicked
             self.EXITCODE = 3
         elif self.buttonList[2].collision.collidepoint(coord):  # OBD button clicked
