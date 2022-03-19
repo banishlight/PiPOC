@@ -16,11 +16,15 @@ BUFFERMAX = 6
 
 
 class Screen:
-    connection = 0
     EXITCODE = 0
+
+    connection = 0
     state = "no connection"
+
     number_font = 0
     text_font = 0
+    status_font = 0
+
     buttonList = []
     SensorList = [{"label": "Speed",
                    "command": obd.commands.SPEED,
@@ -57,6 +61,7 @@ class Screen:
         # Load font
         self.number_font = pygame.font.Font("cnr.otf", 80)
         self.text_font = pygame.font.Font("cnr.otf", 50)
+        self.status_font = pygame.font.Font("cnr.otf", 24)
         # Connect to OBD
         self.connect_obd()
         return
@@ -85,9 +90,11 @@ class Screen:
 
     def draw(self, display):
         display.fill(BACKGROUND_COLOUR)
+        status_surf = self.status_font.render(self.state, True, (255, 255, 255))
+        display.blit(status_surf, (0, 576))
+        # Draw exit button
+        display.blit(self.buttonList[0].image, self.buttonList[0].coord)
         if self.state == "connected":
-            # Draw exit button
-            display.blit(self.buttonList[0].image, self.buttonList[0].coord)
             # Draw RPM
             rpm_surf = self.number_font.render((str(self.SensorList[1]["final"]) + self.SensorList[1]["label"]), True,
                                                (255, 255, 255))
@@ -100,7 +107,6 @@ class Screen:
         return
 
     def connect_obd(self):
-
         self.connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=TIMEOUT,
                                   check_voltage=CHECKVOLTAGE)
         if self.connection.status() == obd.OBDStatus.CAR_CONNECTED:
