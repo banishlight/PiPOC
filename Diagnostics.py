@@ -11,32 +11,6 @@ CHECKVOLTAGE = True
 TIMEOUT = 0.1
 
 BUFFERMAX = 6
-SensorList = [{"label": "Speed",
-               "command": obd.commands.SPEED,
-               "final": 0,
-               "buffer": [],
-               "unit": "KM/h"},
-              {"label": "RPM",
-               "command": obd.commands.RPM,
-               "final": 0,
-               "buffer": [],
-               "unit": ""},
-              {"label": "Throttle Position",
-               "command": obd.commands.THROTTLE_POS,
-               "final": 0,
-               "buffer": [],
-               "unit": "%"},
-              {"label": "Fuel Level",
-               "command": obd.commands.FUEL_LEVEL,
-               "final": 0,
-               "buffer": [],
-               "unit": "%"},
-              {"label": "Timing",
-               "command": obd.commands.TIMING_ADVANCE,
-               "final": 0,
-               "buffer": [],
-               "unit": "°"}
-              ]
 
 
 class Screen:
@@ -46,6 +20,32 @@ class Screen:
     buttonList = []
     number_font = 0
     text_font = 0
+    SensorList = [{"label": "Speed",
+                   "command": obd.commands.SPEED,
+                   "final": 0,
+                   "buffer": [],
+                   "unit": "KM/h"},
+                  {"label": "RPM",
+                   "command": obd.commands.RPM,
+                   "final": 0,
+                   "buffer": [],
+                   "unit": ""},
+                  {"label": "Throttle Position",
+                   "command": obd.commands.THROTTLE_POS,
+                   "final": 0,
+                   "buffer": [],
+                   "unit": "%"},
+                  {"label": "Fuel Level",
+                   "command": obd.commands.FUEL_LEVEL,
+                   "final": 0,
+                   "buffer": [],
+                   "unit": "%"},
+                  {"label": "Timing",
+                   "command": obd.commands.TIMING_ADVANCE,
+                   "final": 0,
+                   "buffer": [],
+                   "unit": "°"}
+                  ]
 
     def __init__(self):
         self.EXITCODE = 0
@@ -62,20 +62,20 @@ class Screen:
 
     def on_loop(self):
         # Gather sensors
-        for a in range(len(SensorList)):
-            query = self.connection.query(SensorList[a]["command"])
+        for a in range(len(self.SensorList)):
+            query = self.connection.query(self.SensorList[a]["command"])
             current_value = query.value.magnitude
 
-            if len(SensorList[a]["buffer"]) == BUFFERMAX:  # buffer full, remove oldest value
-                SensorList[a]["buffer"].pop(0)
-            SensorList[a]["buffer"].append(current_value)  # add the newest value to buffer
+            if len(self.SensorList[a]["buffer"]) == BUFFERMAX:  # buffer full, remove oldest value
+                self.SensorList[a]["buffer"].pop(0)
+            self.SensorList[a]["buffer"].append(current_value)  # add the newest value to buffer
             # total up buffer
             total = 0
-            for b in range(len(SensorList[a]["buffer"])):
-                total += SensorList[a]["buffer"][b]
-            SensorList[a]["final"] = int(total / len(SensorList[a]["buffer"]))
+            for b in range(len(self.SensorList[a]["buffer"])):
+                total += self.SensorList[a]["buffer"][b]
+            self.SensorList[a]["final"] = int(total / len(self.SensorList[a]["buffer"]))
 
-        return 0
+        return self.EXITCODE
 
     def draw(self, display):
         display.fill(self.BACKGROUND_COLOUR)
@@ -83,7 +83,8 @@ class Screen:
         for a in self.buttonList:
             display.blit(a.image, a.coord)
         # Draw RPM
-        rpm_surf = self.number_font.render((str(SensorList[1]["final"]) + SensorList[1]["label"]), True, (255, 255, 255))
+        rpm_surf = self.number_font.render((str(self.SensorList[1]["final"]) + self.SensorList[1]["label"]), True,
+                                           (255, 255, 255))
         display.blit(rpm_surf, (720, 72))
         return
 
