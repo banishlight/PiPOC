@@ -70,7 +70,9 @@ class Screen:
         self.status_font = pygame.font.Font("cnr.otf", 24)
         # Connect to OBD
         self.connect_obd()
-
+        # Fuel Meter Initialized
+        self.fuelMeter = Meter(100, 64, 128, 40, 200, self.SensorList[3]["label"])
+        # Objects for testing
         self.test_meter = Meter(100, 64, 128, 40, 200, "Fuel %")
         return
 
@@ -78,6 +80,8 @@ class Screen:
         # OBD connected
         if self.state == "connected":
             self.update_sensors()
+            self.fuelMeter.update(self.SensorList[3]["final"])
+
         # OBD not connected
         else:
             self.test_meter.update(80)
@@ -117,6 +121,23 @@ class Screen:
         temp_label = self.text_font.render(self.SensorList[5]["final"], True, (255, 255, 255))
         display.blit(temp_label, (390, 150))
 
+        # Draw Throttle Position
+        throttle_surf = self.number_font.render((str(self.SensorList[2]["final"]) + self.SensorList[2]["unit"]), True,
+                                                (255, 255, 255))
+        display.blit(throttle_surf, (720, 360))
+        throttle_label = self.text_font.render(self.SensorList[2]["final"], True, (255, 255, 255))
+        display.blit(throttle_label, (670, 430))
+
+        # Draw Timing Advance
+        timing_surf = self.number_font.render((str(self.SensorList[4]["final"]) + self.SensorList[4]["unit"]), True,
+                                              (255, 255, 255))
+        display.blit(timing_surf, (400, 360))
+        timing_label = self.text_font.render(self.SensorList[4]["final"], True, (255, 255, 255))
+        display.blit(timing_label, (350, 430))
+
+        # Draw Fuel Meter
+        self.fuelMeter.draw(display)
+
     def update_sensors(self):
         # Gather sensors
         for a in range(len(self.SensorList)):
@@ -145,15 +166,29 @@ class Screen:
 
     def test_draw_sensors(self, display):
         # Draw test sensors
-        rpm_surf = self.number_font.render("10000", True, (255, 255, 255))  # RPM test
+        # RPM test
+        rpm_surf = self.number_font.render("10000", True, (255, 255, 255))
         display.blit(rpm_surf, (720, 72))
         rpm_label = self.text_font.render("RPM", True, (255, 255, 255))
         display.blit(rpm_label, (800, 150))
 
-        temp_surf = self.number_font.render("80°C", True, (255, 255, 255))  # Coolant temp test
+        # Coolant temp test
+        temp_surf = self.number_font.render("80°C", True, (255, 255, 255))
         display.blit(temp_surf, (400, 72))
         rpm_label = self.text_font.render("Coolant Temp", True, (255, 255, 255))
         display.blit(rpm_label, (390, 150))
+
+        # Throttle position test
+        throttle_surf = self.number_font.render("30%", True, (255, 255, 255))
+        display.blit(throttle_surf, (720, 360))
+        throttle_label = self.text_font.render("Throttle Position", True, (255, 255, 255))
+        display.blit(throttle_label, (670, 430))
+
+        # Timing advance test
+        timing_surf = self.number_font.render("15°", True, (255, 255, 255))
+        display.blit(timing_surf, (400, 360))
+        timing_label = self.text_font.render("Timing Advance", True, (255, 255, 255))
+        display.blit(timing_label, (350, 430))
 
         self.test_meter.draw(display)
         return None
@@ -190,7 +225,7 @@ class Meter:
     value = 0
     label = "None"
 
-    def __init__(self, max_val, X, Y, width, height , label):
+    def __init__(self, max_val, X, Y, width, height, label):
         self.max_val = max_val
         self.height = height
         self.width = width
@@ -216,4 +251,5 @@ class Meter:
         percentage = value / self.max_val
         self.value = value
         self.new_height = int(self.height * percentage)
-        self.inner_rect = pygame.Rect(self.coordX, self.coordY + (self.height - self.new_height), self.width, self.new_height)
+        self.inner_rect = pygame.Rect(self.coordX, self.coordY + (self.height - self.new_height), self.width,
+                                      self.new_height)
