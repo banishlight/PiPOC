@@ -18,87 +18,17 @@ BUFFERMAX = 6
 class Screen:
     EXITCODE = 0
 
-    connection = 0
-    state = "no connection"
-
-    number_font = 0
-    text_font = 0
-    status_font = 0
-
-    buttonList = []
-    SensorList = [{"label": "Speed",
-                   "command": obd.commands.SPEED,
-                   "final": 0,
-                   "buffer": [],
-                   "unit": "KM/h"},
-                  {"label": "RPM",
-                   "command": obd.commands.RPM,
-                   "final": 0,
-                   "buffer": [],
-                   "unit": ""},
-                  {"label": "Throttle Position",
-                   "command": obd.commands.THROTTLE_POS,
-                   "final": 0,
-                   "buffer": [],
-                   "unit": "%"},
-                  {"label": "Fuel Level",
-                   "command": obd.commands.FUEL_LEVEL,
-                   "final": 0,
-                   "buffer": [],
-                   "unit": "%"},
-                  {"label": "Timing",
-                   "command": obd.commands.TIMING_ADVANCE,
-                   "final": 0,
-                   "buffer": [],
-                   "unit": "°"},
-                  {"label": "Engine Temp",
-                   "command": obd.commands.COOLANT_TEMP,
-                   "final": 0,
-                   "buffer": [],
-                   "unit": "°C"}
-                  ]
-    test_meter = None
 
     def __init__(self):
         self.EXITCODE = 0
-        # Load Icons
-        obj = Button((0, 0), "icons/Exit_button.png", 64, 64)  # Exit button
-        self.buttonList.append(obj)
-        # Load font
-        self.number_font = pygame.font.Font("cnr.otf", 80)
-        self.text_font = pygame.font.Font("cnr.otf", 30)
-        self.status_font = pygame.font.Font("cnr.otf", 24)
-        # Connect to OBD
-        self.connect_obd()
-        # Fuel Meter Initialized
-        self.fuelMeter = Meter(100, 64, 128, 40, 200, self.SensorList[3]["label"])
-        # Objects for testing
-        self.test_meter = Meter(100, 64, 128, 40, 200, "Fuel %")
+
         return
 
     def on_loop(self):
-        # OBD connected
-        if self.state == "connected":
-            self.update_sensors()
-            self.fuelMeter.update(self.SensorList[3]["final"])
-
-        # OBD not connected
-        else:
-            self.test_meter.update(80)
 
         return self.EXITCODE
 
     def draw(self, display):
-        display.fill(BACKGROUND_COLOUR)
-        status_surf = self.status_font.render(self.state, True, (255, 255, 255))
-        display.blit(status_surf, (0, 576))
-        # Draw exit button
-        display.blit(self.buttonList[0].image, self.buttonList[0].coord)
-        #  OBD connected, draw values
-        if self.state == "connected":
-            self.draw_sensors(display)
-        else:
-            self.test_draw_sensors(display)
         return
 
     def click(self, coord):
