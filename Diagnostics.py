@@ -16,24 +16,23 @@ BUFFERMAX = 6
 
 
 class Screen:
-    EXITCODE = 0
-
+    exitCode = 0
 
     def __init__(self):
-        self.EXITCODE = 0
+        self.exitCode = 0
 
         return
 
     def on_loop(self):
 
-        return self.EXITCODE
+        return self.exitCode
 
     def draw(self, display):
         return
 
     def click(self, coord):
         if self.buttonList[0].collision.collidepoint(coord):  # Exit button to main menu
-            self.EXITCODE = 1
+            self.exitCode = 1
         return
 
     def draw_sensors(self, display):
@@ -126,6 +125,31 @@ class Screen:
         self.test_meter.draw(display)
         return None
 
+    class Startup:
+        def __init__(self):
+            return
+
+        def on_loop(self):
+            return
+
+        def draw(self, display):
+            return
+
+        def click(self, coord):
+            return
+
+    class FailedConnection:
+        def __init__(self):
+            return
+
+        def on_loop(self):
+            return
+
+        def draw(self, display):
+            return
+
+        def click(self, coord):
+            return
 
 class Button:
     image = 0
@@ -145,21 +169,21 @@ class Button:
 
 
 class Meter:
-    max_val = 100
+    maxVal = 100
     rect = None
     height = 0
     width = 0
     coordX = 0
     coordY = 0
-    inner_rect = None
-    inner_colour = (255, 0, 0)
+    innerRect = None
+    innerColour = (255, 0, 0)
     text_font = 0
     new_height = 0
     value = 0
     label = "None"
 
-    def __init__(self, max_val, X, Y, width, height, label):
-        self.max_val = max_val
+    def __init__(self, maxVal, X, Y, width, height, label):
+        self.maxVal = maxVal
         self.height = height
         self.width = width
         self.coordX = X
@@ -170,10 +194,10 @@ class Meter:
         return
 
     def draw(self, display):
-        if self.rect is not None and self.inner_rect is not None:
-            pygame.draw.rect(display, self.inner_colour, self.inner_rect)
+        if self.rect is not None and self.innerRect is not None:
+            pygame.draw.rect(display, self.innerColour, self.innerRect)
             pygame.draw.rect(display, (255, 255, 255), self.rect, 3)
-            max_text = self.text_font.render(str(self.max_val), True, (255, 255, 255))
+            max_text = self.text_font.render(str(self.maxVal), True, (255, 255, 255))
             display.blit(max_text, (self.coordX + self.width + 4, self.coordY))
             val_text = self.text_font.render(str(self.value), True, (255, 255, 255))
             display.blit(val_text, (self.coordX + self.width + 4, self.coordY + (self.height - self.new_height)))
@@ -181,8 +205,8 @@ class Meter:
             display.blit(label_text, (self.coordX - 4, self.coordY - 24))
 
     def update(self, value):
-        percentage = value / self.max_val
+        percentage = value / self.maxVal
         self.value = value
         self.new_height = int(self.height * percentage)
-        self.inner_rect = pygame.Rect(self.coordX, self.coordY + (self.height - self.new_height), self.width,
-                                      self.new_height)
+        self.innerRect = pygame.Rect(self.coordX, self.coordY + (self.height - self.new_height), self.width,
+                                     self.new_height)
