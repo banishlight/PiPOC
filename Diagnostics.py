@@ -118,21 +118,21 @@ class Screen:
         temp_surf = self.number_font.render((str(self.SensorList[5]["final"]) + self.SensorList[5]["unit"]), True,
                                             (255, 255, 255))
         display.blit(temp_surf, (400, 72))
-        temp_label = self.text_font.render(self.SensorList[5]["final"], True, (255, 255, 255))
+        temp_label = self.text_font.render(self.SensorList[5]["label"], True, (255, 255, 255))
         display.blit(temp_label, (390, 150))
 
         # Draw Throttle Position
         throttle_surf = self.number_font.render((str(self.SensorList[2]["final"]) + self.SensorList[2]["unit"]), True,
                                                 (255, 255, 255))
         display.blit(throttle_surf, (720, 360))
-        throttle_label = self.text_font.render(self.SensorList[2]["final"], True, (255, 255, 255))
+        throttle_label = self.text_font.render(self.SensorList[2]["label"], True, (255, 255, 255))
         display.blit(throttle_label, (670, 430))
 
         # Draw Timing Advance
         timing_surf = self.number_font.render((str(self.SensorList[4]["final"]) + self.SensorList[4]["unit"]), True,
                                               (255, 255, 255))
         display.blit(timing_surf, (400, 360))
-        timing_label = self.text_font.render(self.SensorList[4]["final"], True, (255, 255, 255))
+        timing_label = self.text_font.render(self.SensorList[4]["label"], True, (255, 255, 255))
         display.blit(timing_label, (350, 430))
 
         # Draw Fuel Meter
@@ -142,7 +142,10 @@ class Screen:
         # Gather sensors
         for a in range(len(self.SensorList)):
             query = self.connection.query(self.SensorList[a]["command"])
-            current_value = query.value.magnitude
+            if query is not None:
+                current_value = query.value.magnitude
+            else:
+                current_value = 0
 
             if len(self.SensorList[a]["buffer"]) == BUFFERMAX:  # buffer full, remove oldest value
                 self.SensorList[a]["buffer"].pop(0)
