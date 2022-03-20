@@ -25,7 +25,7 @@ CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
 MainLock = Lock()
 if __name__ == '__main__':
     pygame.init()
-    display = pygame.display.set_mode((1024, 600), pygame.FULLSCREEN)
+    display = pygame.display.set_mode((1024, 600))
 
     pygame.font.init()
 
