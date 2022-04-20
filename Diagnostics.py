@@ -17,13 +17,16 @@ BUFFERMAX = 6
 
 class Screen:
     exitCode = 0
+    screenCode = 0
 
     def __init__(self):
         self.exitCode = 0
-
+        self.screenCode = 0
         return
 
     def on_loop(self):
+
+        if self.screenCode != 0:
 
         return self.exitCode
 
@@ -150,6 +153,7 @@ class Screen:
 
         def click(self, coord):
             return
+
 
 class Button:
     image = 0
