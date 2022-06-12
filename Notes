@@ -12,3 +12,11 @@ R   - 3.564
 Diff - 4.444
 My Diff - 4.300
 
+Exitcode translation:
+99: Quit gracefully
+0: Do nothing
+1: goto MainMenu.py
+2: goto Diagnostics.py
+3: goto Visualizer.py
+4: goto Settings.py
+5: goto Connecting.py

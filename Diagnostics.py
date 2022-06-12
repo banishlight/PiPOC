@@ -16,7 +16,7 @@ BUFFERMAX = 6
 
 
 class Screen:
-    EXITCODE = 0
+    exitCode = 0
 
     connection = 0
     state = "no connection"
@@ -60,7 +60,7 @@ class Screen:
     test_meter = None
 
     def __init__(self):
-        self.EXITCODE = 0
+        self.exitCode = 0
         # Load Icons
         obj = Button((0, 0), "icons/Exit_button.png", 64, 64)  # Exit button
         self.buttonList.append(obj)
@@ -86,7 +86,7 @@ class Screen:
         else:
             self.test_meter.update(80)
 
-        return self.EXITCODE
+        return self.exitCode
 
     def draw(self, display):
         display.fill(BACKGROUND_COLOUR)
@@ -103,7 +103,7 @@ class Screen:
 
     def click(self, coord):
         if self.buttonList[0].collision.collidepoint(coord):  # Exit button to main menu
-            self.EXITCODE = 1
+            self.exitCode = 1
         return
 
     def draw_sensors(self, display):

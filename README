@@ -8,4 +8,13 @@
                                      __/ |
                                     |___/
 
-Hi this is my readme
+Formatting:
+
+Variables:
+Beginning with Capital, Camelcase
+
+Objects:
+Beginning with capital, separated with underscore _
+
+Methods:
+Beginning with lowercase, separated with underscore _

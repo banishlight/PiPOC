@@ -43,7 +43,7 @@ class Screen:
         elif self.buttonList[1].collision.collidepoint(coord):  # visualizer button clicked
             self.EXITCODE = 3
         elif self.buttonList[2].collision.collidepoint(coord):  # OBD button clicked
-            self.EXITCODE = 2
+            self.EXITCODE = 5
         elif self.buttonList[3].collision.collidepoint(coord):  # Settings button clicked
             self.EXITCODE = 4
         elif self.buttonList[4].collision.collidepoint(coord):  # Exit button clicked

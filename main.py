@@ -1,10 +1,12 @@
 import pygame
 import sys
+from threading import Thread, Lock
+# My creations
 import Diagnostics as Diag
 import MainMenu as Menu
 import Visualizer as Vis
 import Settings
-from threading import Thread, Lock
+import Connecting
 
 
 def draw(displayPass):
@@ -15,22 +17,33 @@ def draw(displayPass):
         pygame.display.flip()  # Update the entire display
         MainLock.release()
         CLOCK.tick(MAXFPS)  # Cap Frame Rate
+        while promptObj is not None:
+            print("prompting!")
 
 
-MAXFPS = 60  # Maximum rate the loop will run at
-TICKRATE = 12
+def prompt(text):
+    rect = pygame.Rect(256, 150, 512, 300)
+
+    return
+
+
+def set_obd_connection(connection):
+    return
+
+
+MAXFPS = 60  # Maximum rate the screen will draw at
+TICKRATE = 12  # Maximum rate the logic will loop at
 DRAWING = True
 
-CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
-MainLock = Lock()
 if __name__ == '__main__':
     pygame.init()
     display = pygame.display.set_mode((1024, 600))
-
     pygame.font.init()
-
     MainObj = Menu.Screen()
-    ExitCode = 0
+    exitcode = 0
+    CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
+    MainLock = Lock()
+    promptObj = None
 
     # create separate thread for drawing the screen
     DrawingThread = Thread(target=draw, args=(display,))
@@ -55,22 +68,40 @@ if __name__ == '__main__':
                     MainObj.click(pygame.mouse.get_pos())
 
         # run main loop
-        ExitCode = MainObj.on_loop()
+        exitcode = MainObj.on_loop()
 
         # Check exit code
-        if ExitCode != 0:
+        if exitcode != 0:
             MainLock.acquire()  # Lock the Main Object from being drawn over
-            if ExitCode == 1:
+            if exitcode == 1:  # Main Menu
                 MainObj = Menu.Screen()
-            elif ExitCode == 2:
+            elif exitcode == 2:  # Diagnostics
                 MainObj = Diag.Screen()
-            elif ExitCode == 3:
+            elif exitcode == 3:  # Visualizer
                 MainObj = Vis.Screen()
-            elif ExitCode == 4:
+            elif exitcode == 4:  # Settings
                 MainObj = Settings.Screen()
-            elif ExitCode == 99:
+            elif exitcode == 5:  # Connecting
+                MainObj = Connecting.Screen()
+            elif exitcode == 99:
                 looping = False
                 pygame.QUIT
             MainLock.release()  # Release the Main Object
 
         CLOCK.tick(TICKRATE)  # Cap Logic Rate
+
+
+class PromptBox:
+    result = None
+    rect = None
+    text = "None was given"
+
+    def __init__(self, rect, text):
+        self.rect = rect
+        self.text = text
+
+    def get_result(self):
+        return self.result
+
+    def draw(self):
+        return
