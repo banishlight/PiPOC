@@ -5,12 +5,7 @@ import obd
 # Constants
 BACKGROUND_COLOUR = (0, 0, 0)  # Black
 
-PORTSTR = None
-BAUDRATE = 500000  # Serial of the connection, varies from adapter to adapter
-PROTOCOL = None
-FAST = True
-CHECKVOLTAGE = True
-TIMEOUT = 1.0
+
 
 BUFFERMAX = 6
 

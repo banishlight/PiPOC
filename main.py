@@ -8,34 +8,33 @@ import Visualizer as Vis
 import Settings
 import Connecting
 
-
-def draw(displayPass):
-    print("graphic thread starting!")
-    while DRAWING:  # Loop Graphics
-        MainLock.acquire()
-        MainObj.draw(displayPass)
-        pygame.display.flip()  # Update the entire display
-        MainLock.release()
-        CLOCK.tick(MAXFPS)  # Cap Frame Rate
-        while promptObj is not None:
-            print("prompting!")
-
-
-def prompt(text):
-    rect = pygame.Rect(256, 150, 512, 300)
-
-    return
-
-
-def set_obd_connection(connection):
-    return
-
-
 MAXFPS = 60  # Maximum rate the screen will draw at
 TICKRATE = 12  # Maximum rate the logic will loop at
 DRAWING = True
 
-if __name__ == '__main__':
+
+class Main:
+
+    def draw(self, displayPass):
+        print("graphic thread starting!")
+        while DRAWING:  # Loop Graphics
+            self.MainLock.acquire()
+            self.MainObj.draw(displayPass)
+            pygame.display.flip()  # Update the entire display
+            self.MainLock.release()
+            self.CLOCK.tick(MAXFPS)  # Cap Frame Rate
+            while self.promptObj is not None:
+                print("prompting!")
+
+    def prompt(self, text):
+        rect = pygame.Rect(256, 150, 512, 300)
+
+        return
+
+    def set_obd_connection(self, result):
+        self.connection = result
+        return
+
     pygame.init()
     display = pygame.display.set_mode((1024, 600))
     pygame.font.init()
@@ -44,6 +43,7 @@ if __name__ == '__main__':
     CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
     MainLock = Lock()
     promptObj = None
+    connection = None
 
     # create separate thread for drawing the screen
     DrawingThread = Thread(target=draw, args=(display,))
@@ -105,3 +105,7 @@ class PromptBox:
 
     def draw(self):
         return
+
+
+if __name__ == '__main__':
+    Main()
