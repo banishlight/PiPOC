@@ -10,85 +10,87 @@ import Connecting
 
 MAXFPS = 60  # Maximum rate the screen will draw at
 TICKRATE = 12  # Maximum rate the logic will loop at
-DRAWING = True
 
 
 class Main:
+    exitcode = 0
+    mainLock = Lock()
+    promptObj = None
+    connection = None
+    clock = pygame.time.Clock()  # Object used to restrict framerate of program
+    mainObj = None
+    drawing = True
 
     def draw(self, displayPass):
         print("graphic thread starting!")
-        while DRAWING:  # Loop Graphics
-            self.MainLock.acquire()
-            self.MainObj.draw(displayPass)
+        while self.drawing:  # Loop Graphics
+            self.mainLock.acquire()
+            self.mainObj.draw(displayPass)
             pygame.display.flip()  # Update the entire display
-            self.MainLock.release()
-            self.CLOCK.tick(MAXFPS)  # Cap Frame Rate
+            self.mainLock.release()
+            self.clock.tick(MAXFPS)  # Cap Frame Rate
             while self.promptObj is not None:
                 print("prompting!")
 
     def prompt(self, text):
         rect = pygame.Rect(256, 150, 512, 300)
 
-        return
+        return PromptBox(rect, text)
 
     def set_obd_connection(self, result):
         self.connection = result
         return
 
-    pygame.init()
-    display = pygame.display.set_mode((1024, 600))
-    pygame.font.init()
-    MainObj = Menu.Screen()
-    exitcode = 0
-    CLOCK = pygame.time.Clock()  # Object used to restrict framerate of program
-    MainLock = Lock()
-    promptObj = None
-    connection = None
+    def __init__(self):
+        pygame.init()
+        display = pygame.display.set_mode((1024, 600))
+        pygame.font.init()
+        self.mainObj = Menu.Screen()
 
-    # create separate thread for drawing the screen
-    DrawingThread = Thread(target=draw, args=(display,))
-    DrawingThread.start()
+        print("Before drawing thread")
+        # create separate thread for drawing the screen
+        drawingthread = Thread(target=self.draw, args=(display,))
+        drawingthread.start()
 
-    looping = True
-    while looping:  # Main loop of program
-        # Check for input
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                print("Program Ending!")
-                DRAWING = False  # kill DrawingThread before closing
-                MainLock.acquire()
-                pygame.display.quit()  # fixes a bug where the window won't close
-                MainLock.release()
-                pygame.font.quit()
-                pygame.quit()
-                sys.exit()
-            # detect a click event, call click event in MainObj, pass cursor coordinates
-            elif event.type == pygame.MOUSEBUTTONUP:
-                if event.button == 1:  # Button 1 is left mouse button
-                    MainObj.click(pygame.mouse.get_pos())
+        looping = True
+        while looping:  # Main loop of program
+            # Check for input
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    print("Program Ending!")
+                    self.drawing = False  # kill DrawingThread before closing
+                    self.mainLock.acquire()
+                    pygame.display.quit()  # fixes a bug where the window won't close
+                    self.mainLock.release()
+                    pygame.font.quit()
+                    pygame.quit()
+                    sys.exit()
+                # detect a click event, call click event in MainObj, pass cursor coordinates
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    if event.button == 1:  # Button 1 is left mouse button
+                        self.mainObj.click(pygame.mouse.get_pos())
 
-        # run main loop
-        exitcode = MainObj.on_loop()
+            # run main loop
+            exitcode = self.mainObj.on_loop()
 
-        # Check exit code
-        if exitcode != 0:
-            MainLock.acquire()  # Lock the Main Object from being drawn over
-            if exitcode == 1:  # Main Menu
-                MainObj = Menu.Screen()
-            elif exitcode == 2:  # Diagnostics
-                MainObj = Diag.Screen()
-            elif exitcode == 3:  # Visualizer
-                MainObj = Vis.Screen()
-            elif exitcode == 4:  # Settings
-                MainObj = Settings.Screen()
-            elif exitcode == 5:  # Connecting
-                MainObj = Connecting.Screen()
-            elif exitcode == 99:
-                looping = False
-                pygame.QUIT
-            MainLock.release()  # Release the Main Object
+            # Check exit code
+            if exitcode != 0:
+                self.mainLock.acquire()  # Lock the Main Object from being drawn over
+                if exitcode == 1:  # Main Menu
+                    self.mainObj = Menu.Screen()
+                elif exitcode == 2:  # Diagnostics
+                    self.mainObj = Diag.Screen()
+                elif exitcode == 3:  # Visualizer
+                    self.mainObj = Vis.Screen()
+                elif exitcode == 4:  # Settings
+                    self.mainObj = Settings.Screen()
+                elif exitcode == 5:  # Connecting
+                    self.mainObj = Connecting.Screen()
+                elif exitcode == 99:
+                    looping = False
+                self.mainLock.release()  # Release the Main Object
 
-        CLOCK.tick(TICKRATE)  # Cap Logic Rate
+            self.clock.tick(TICKRATE)  # Cap Logic Rate
 
 
 class PromptBox:
