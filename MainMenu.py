@@ -28,7 +28,7 @@ class Screen:
         self.buttonList.append(obj)
         return
 
-    def on_loop(self):
+    def on_loop(self, coreObj):
         return self.EXITCODE
 
     def draw(self, display):

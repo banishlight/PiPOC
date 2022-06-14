@@ -20,11 +20,11 @@ class Screen:
         self.text_font = pygame.font.Font("cnr.otf", 64)
         return
 
-    def on_loop(self):
+    def on_loop(self, coreObj):
         if self.connect_obd():
             self.exitcode = 2
         else:
-            self.exitcode = 0
+            core.Main.prompt(coreObj, "Connection to OBD has failed.  \nWould you like to retry?")
         return self.exitcode
 
     def draw(self, display):

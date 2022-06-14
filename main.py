@@ -34,7 +34,7 @@ class Main:
 
     def prompt(self, text):
         rect = pygame.Rect(256, 150, 512, 300)
-
+        print(text)
         return PromptBox(rect, text)
 
     def set_obd_connection(self, result):
@@ -71,7 +71,7 @@ class Main:
                         self.mainObj.click(pygame.mouse.get_pos())
 
             # run main loop
-            exitcode = self.mainObj.on_loop()
+            exitcode = self.mainObj.on_loop(self)
 
             # Check exit code
             if exitcode != 0:

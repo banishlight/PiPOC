@@ -71,7 +71,7 @@ class Screen:
         self.test_meter = Meter(100, 64, 128, 40, 200, "Fuel %")
         return
 
-    def on_loop(self):
+    def on_loop(self, coreObj):
         # OBD connected
         if self.state == "connected":
             self.update_sensors()
