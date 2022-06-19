@@ -2,7 +2,7 @@ import pygame
 import obd
 import main as core
 
-BACKGROUND_COLOUR = (0, 0, 0)  # Black
+BACKGROUND_COLOUR = (125, 125, 125)  # Black
 PORTSTR = None
 BAUDRATE = 500000  # Serial of the connection, varies from adapter to adapter
 PROTOCOL = None
@@ -15,16 +15,23 @@ class Screen:
     exitcode = 0
     buttonlist = []
     connection = None
+    state = "Not Connected"
 
     def __init__(self):
         self.text_font = pygame.font.Font("cnr.otf", 64)
         return
 
     def on_loop(self, coreObj):
-        if self.connect_obd():
-            self.exitcode = 2
-        else:
-            core.Main.prompt(coreObj, "Connection to OBD has failed.  \nWould you like to retry?")
+        if self.state == "Not Connected":
+            if self.connect_obd():
+                print("Connection Success!")
+                self.exitcode = 2
+            else:
+                print("Connection Failed!")
+                self.state = "Failed"
+                core.Main.prompt(coreObj, "Connection to OBD has failed.  \nWould you like to retry?")
+        elif self.state == "Failed":
+            result = core.Main.check_prompt(coreObj)
         return self.exitcode
 
     def draw(self, display):

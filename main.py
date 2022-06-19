@@ -15,31 +15,43 @@ TICKRATE = 12  # Maximum rate the logic will loop at
 class Main:
     exitcode = 0
     mainLock = Lock()
-    promptObj = None
     connection = None
     clock = pygame.time.Clock()  # Object used to restrict framerate of program
     mainObj = None
     drawing = True
+    promptObj = None
+    promptLock = Lock()
+    promptResult = 0
 
     def draw(self, displayPass):
         print("graphic thread starting!")
         while self.drawing:  # Loop Graphics
             self.mainLock.acquire()
             self.mainObj.draw(displayPass)
+            self.promptLock.acquire()
+            if self.promptObj is not None:
+                self.promptObj.draw(displayPass)
+            self.promptLock.release()
             pygame.display.flip()  # Update the entire display
             self.mainLock.release()
             self.clock.tick(MAXFPS)  # Cap Frame Rate
-            while self.promptObj is not None:
-                print("prompting!")
 
     def prompt(self, text):
-        rect = pygame.Rect(256, 150, 512, 300)
-        print(text)
-        return PromptBox(rect, text)
+        self.promptObj = PromptBox(text)
+        self.promptResult = 1
+        return 0
 
     def set_obd_connection(self, result):
         self.connection = result
         return
+
+    def check_prompt(self):
+        if self.promptResult == 2 or self.promptResult == 3:
+            val = self.promptResult
+
+            return val
+        else:
+            return self.promptResult
 
     def __init__(self):
         pygame.init()
@@ -68,7 +80,12 @@ class Main:
                 # detect a click event, call click event in MainObj, pass cursor coordinates
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:  # Button 1 is left mouse button
-                        self.mainObj.click(pygame.mouse.get_pos())
+                        self.promptLock.acquire()
+                        if self.promptObj is not None:
+                            self.promptResult = self.promptObj.check_collision(pygame.mouse.get_pos())
+                        else:
+                            self.mainObj.click(pygame.mouse.get_pos())
+                        self.promptLock.release()
 
             # run main loop
             exitcode = self.mainObj.on_loop(self)
@@ -95,18 +112,33 @@ class Main:
 
 class PromptBox:
     result = None
-    rect = None
+    boxrect = pygame.Rect(256, 150, 512, 300)
+    norect = pygame.Rect(256, 350, 256, 100)
+    yesrect = pygame.Rect(512, 350, 256, 100)
     text = "None was given"
+    boxfont = pygame.font.Font("cnr.otf", 24)
 
-    def __init__(self, rect, text):
-        self.rect = rect
+    def __init__(self, text):
         self.text = text
 
     def get_result(self):
         return self.result
 
-    def draw(self):
+    def draw(self, display):
+        pygame.draw.rect(display, (255, 255, 255), self.boxrect)
+        pygame.draw.rect(display, (0, 0, 0), self.yesrect, 2)
+        pygame.draw.rect(display, (0, 0, 0), self.norect, 2)
         return
+
+    def check_collision(self, position):
+        # Check if clicked yes
+        if self.yesrect.collision.collidepoint(position):
+            return 2
+        # Check if clicked no
+        elif self.norect.collision.collidepoint(position):
+            return 3
+        else:
+            return 1
 
 
 if __name__ == '__main__':
