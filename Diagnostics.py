@@ -159,6 +159,7 @@ class Screen:
             self.SensorList[a]["final"] = int(total / size)
 
     def connect_obd(self):
+        # TODO Write try catch block to catch exceptions for when connection fails
         self.connection = obd.OBD(portstr=PORTSTR, baudrate=BAUDRATE, protocol=PROTOCOL, fast=FAST, timeout=TIMEOUT,
                                   check_voltage=CHECKVOLTAGE)
         if self.connection.status() == obd.OBDStatus.CAR_CONNECTED:
