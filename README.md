@@ -35,4 +35,4 @@ A few inspirations for potential layouts of the racing HUD
 ![Alt text](images/image-4.png)
 ![Alt text](images/image-5.png)
 ![Alt text](images/image-6.png)
-I am going to want to separate the diagnostics display and racing display.  The last image
+I am going to want to separate the diagnostics display and racing display.  These give some ideas for the colour scheme and layouts I would like to do.
