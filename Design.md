@@ -1,4 +1,4 @@
-## Design Outline
+# Design Outline
 
 ## Main Menu Display
 ![Alt text](images/image-2.png)
