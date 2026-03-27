@@ -1,4 +1,5 @@
 #include <agents/GraphicsAgent.hpp>
+#include <ViewHandler.hpp>
 #include <chrono>
 #include <thread>
 #include <raylib.h>
@@ -22,13 +23,11 @@ void GraphicsAgent::stop() {
 
 void GraphicsAgent::run() {
     while (_running) {
-        drawView();
+        BeginDrawing();
+        ViewHandler::getInstance().drawView();
         drawNotif();
+        EndDrawing();
     }
-}
-
-void GraphicsAgent::drawView() {
-
 }
 
 void GraphicsAgent::drawNotif() {

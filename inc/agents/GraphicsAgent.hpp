@@ -10,7 +10,6 @@ class GraphicsAgent {
         void stop();
     private:
         void run();
-        void drawView();
         void drawNotif();
         std::jthread _thread;
         std::atomic<bool> _running{false};

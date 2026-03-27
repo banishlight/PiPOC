@@ -51,8 +51,10 @@ public:
     // Called by current active View
     void processEvents();
 
+    void drawView();
+
 private:
-    ViewHandler() = default;
+    ViewHandler();
     ~ViewHandler() = default;
     ViewHandler(const ViewHandler&) = delete;
     ViewHandler& operator=(const ViewHandler&) = delete;
