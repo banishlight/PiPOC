@@ -5,9 +5,7 @@
 #include <queue>
 #include <string>
 
-// ============================================================================
 // AgentEvent — base class for all agent events
-// ============================================================================
 struct AgentEvent {
     enum class Type {
         OBD,
@@ -20,9 +18,7 @@ struct AgentEvent {
     virtual ~AgentEvent() = default;
 };
 
-// ============================================================================
 // OBDEvent — emitted by OBDAgent
-// ============================================================================
 struct OBDEvent : public AgentEvent {
     float rpm          = 0.0f;
     float coolantTemp  = 0.0f;
@@ -36,9 +32,7 @@ struct OBDEvent : public AgentEvent {
     OBDEvent() : AgentEvent(Type::OBD) {}
 };
 
-// ============================================================================
 // BluetoothEvent — emitted by BluetoothAgent
-// ============================================================================
 struct BluetoothEvent : public AgentEvent {
     enum class BTType {
         TrackChanged,
@@ -58,9 +52,7 @@ struct BluetoothEvent : public AgentEvent {
     BluetoothEvent() : AgentEvent(Type::Bluetooth) {}
 };
 
-// ============================================================================
 // InputEvent — emitted by InputAgent
-// ============================================================================
 struct InputEvent : public AgentEvent {
     enum class InputType {
         TouchPress,
@@ -87,10 +79,8 @@ struct InputEvent : public AgentEvent {
     InputEvent() : AgentEvent(Type::Input) {}
 };
 
-// ============================================================================
 // AgentHandler — singleton owning per-agent request queues
 // Views post requests here; each agent reads from its own queue.
-// ============================================================================
 class AgentHandler {
 public:
     static AgentHandler& getInstance();

@@ -1,8 +1,9 @@
 #include <ViewHandler.hpp>
 #include <agents/GraphicsAgent.hpp>
+#include <views/MainView.hpp>
 
 ViewHandler::ViewHandler() {
-    // _activeView = std::make_unique<MainView>();
+    _activeView = std::make_unique<MainView>();
 }
 
 ViewHandler& ViewHandler::getInstance() {
@@ -26,8 +27,9 @@ void ViewHandler::processEvents() {
 
 }
 
-void ViewHandler::checkNotification(const AgentEvent& event) {
-
+void ViewHandler::updateView() {
+    if (!_activeView) return;
+    _activeView->logic();
 }
 
 void ViewHandler::drawView() {

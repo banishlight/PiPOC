@@ -9,7 +9,7 @@ int main(void) {
 
     obda.start();
     bla.start();
-    ga.start();
+    ga.start(); // This agent runs on current main thread
     
     obda.stop();
     bla.stop();

@@ -23,6 +23,7 @@ void GraphicsAgent::stop() {
 
 void GraphicsAgent::run() {
     while (_running) {
+        ViewHandler::getInstance().updateView();
         BeginDrawing();
         ViewHandler::getInstance().drawView();
         drawNotif();
@@ -30,6 +31,7 @@ void GraphicsAgent::run() {
     }
 }
 
+// Draw any current notifications ontop of current view
 void GraphicsAgent::drawNotif() {
 
 }
