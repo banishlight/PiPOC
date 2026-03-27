@@ -21,17 +21,11 @@ struct Notification {
 // View — abstract base class for all views
 // ============================================================================
 class View {
-public:
-    virtual ~View() = default;
+    public:
+        virtual ~View() = default;
 
-    virtual void onEnter() {}
-    virtual void onExit()  {}
-
-    virtual void update(float dt) = 0;
-    virtual void draw()           = 0;
-
-    // Inspect the front event. Return true to consume it, false to discard.
-    virtual bool handleEvent(const AgentEvent& event) = 0;
+        virtual void draw() = 0;
+        virtual int logic() = 0;
 };
 
 // ============================================================================
