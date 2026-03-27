@@ -14,7 +14,7 @@ GraphicsAgent::~GraphicsAgent() {
 
 void GraphicsAgent::start() {
     _running = true;
-    _thread = std::jthread(&GraphicsAgent::run, this);
+    run();
 }
 
 void GraphicsAgent::stop() {

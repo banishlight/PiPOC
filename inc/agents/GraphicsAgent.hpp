@@ -11,6 +11,5 @@ class GraphicsAgent {
     private:
         void run();
         void drawNotif();
-        std::jthread _thread;
         std::atomic<bool> _running{false};
 };

@@ -11,10 +11,10 @@ ViewHandler& ViewHandler::getInstance() {
 }
 
 void ViewHandler::switchView(std::unique_ptr<View> view) {
-    std::lock_guard<std::mutex> lock(_viewMutex);
-    if (_activeView) _activeView->onExit();
-    _activeView = std::move(view);
-    if (_activeView) _activeView->onEnter();
+    // std::lock_guard<std::mutex> lock(_viewMutex);
+    // if (_activeView) _activeView->onExit();
+    // _activeView = std::move(view);
+    // if (_activeView) _activeView->onEnter();
 }
 
 void ViewHandler::pushEvent(std::unique_ptr<AgentEvent> event) {
