@@ -1,13 +1,16 @@
 #pragma once
 
-#include "AgentHandler.hpp"
+#include <AgentHandler.hpp>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
 
+// Forward declare to avoid circular include — GraphicsAgent includes ViewHandler
+class GraphicsAgent;
+
 // ============================================================================
-// Notification — message overlaid on screen by GraphicsAgent
+// Notification — passed directly to GraphicsAgent for display
 // ============================================================================
 struct Notification {
     std::string message;
@@ -33,21 +36,20 @@ public:
 
 // ============================================================================
 // ViewHandler — singleton
-// Owns the display event queue and notification queue.
+// Owns the active view and display event queue.
 // ============================================================================
 class ViewHandler {
 public:
     static ViewHandler& getInstance();
 
-    // Called by agents to post events
+    // Switch to a new view — calls onExit() on old, onEnter() on new
+    void switchView(std::unique_ptr<View> view);
+
+    // Called by agents to post events into the display queue
     void pushEvent(std::unique_ptr<AgentEvent> event);
 
-    // Called by GraphicsAgent each frame — offers front event to active view,
-    // routes discards through notification logic
-    void processEvents(View* activeView);
-
-    // Called by GraphicsAgent to retrieve pending notification overlays
-    std::unique_ptr<Notification> popNotification();
+    // Called by current active View
+    void processEvents();
 
 private:
     ViewHandler() = default;
@@ -55,15 +57,11 @@ private:
     ViewHandler(const ViewHandler&) = delete;
     ViewHandler& operator=(const ViewHandler&) = delete;
 
-    void pushNotification(Notification notif);
     void checkNotification(const AgentEvent& event);
 
-    static constexpr float kCoolantWarnTemp = 100.0f;
-    static constexpr float kOilWarnTemp     = 130.0f;
+    std::unique_ptr<View> _activeView;
+    std::mutex            _viewMutex;
 
     std::queue<std::unique_ptr<AgentEvent>> _eventQueue;
     std::mutex                              _eventMutex;
-
-    std::queue<Notification> _notifQueue;
-    std::mutex               _notifMutex;
 };
