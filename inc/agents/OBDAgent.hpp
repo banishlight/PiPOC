@@ -1,11 +1,11 @@
 #pragma once
 #include <atomic>
-#include <jthread>
+#include <thread>
 
 class OBDAgent {
     public:
-        GraphicsAgent();
-        ~GraphicsAgent();
+        OBDAgent();
+        ~OBDAgent();
         void start();
         void stop();
     private:

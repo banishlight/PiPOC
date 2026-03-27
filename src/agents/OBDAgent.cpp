@@ -1,18 +1,18 @@
 #include <agents/OBDAgent.hpp>
 #include <chrono>
-#include <jthread>
+#include <thread>
 
-GraphicsAgent::OBDAgent() {
+OBDAgent::OBDAgent() {
 
 }
 
-GraphicsAgent::~OBDAgent() {
+OBDAgent::~OBDAgent() {
 
 }
 
 void OBDAgent::start() {
     _running = true;
-    _thread = std::jthread(&GraphicsAgent::run, this);
+    _thread = std::jthread(&OBDAgent::run, this);
 }
 
 void OBDAgent::stop() {

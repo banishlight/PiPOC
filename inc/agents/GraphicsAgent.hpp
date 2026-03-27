@@ -1,6 +1,6 @@
 #pragma once
 #include <atomic>
-#include <jthread>
+#include <thread>
 
 class GraphicsAgent {
     public:

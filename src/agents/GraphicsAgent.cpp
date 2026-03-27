@@ -1,9 +1,9 @@
 #include <agents/GraphicsAgent.hpp>
 #include <chrono>
-#include <jthread>
+#include <thread>
 
 GraphicsAgent::GraphicsAgent() {
-
+    // InitWindow(1024, 600, "PiPOC");
 }
 
 GraphicsAgent::~GraphicsAgent() {
@@ -31,5 +31,5 @@ void GraphicsAgent::drawView() {
 }
 
 void GraphicsAgent::drawNotif() {
-    
+
 }
