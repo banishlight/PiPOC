@@ -1,9 +1,10 @@
 #include <agents/GraphicsAgent.hpp>
 #include <chrono>
 #include <thread>
+#include <raylib.h>
 
 GraphicsAgent::GraphicsAgent() {
-    // InitWindow(1024, 600, "PiPOC");
+    InitWindow(1024, 600, "PiPOC");
 }
 
 GraphicsAgent::~GraphicsAgent() {
