@@ -13,4 +13,5 @@ class OBDView : public View {
     private:
         void fetchEvents();
         Font _font;
+        const std::string _fontPath = "cnr.otf";
 };
