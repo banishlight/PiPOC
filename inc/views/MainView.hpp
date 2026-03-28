@@ -7,7 +7,8 @@ class MainView : public View {
         ~MainView();
         void draw() override;
         int logic() override;
-        
+        void start() override;
+        void close() override;
     private:
         void fetchEvents();
 };

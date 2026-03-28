@@ -6,9 +6,6 @@
 #include <queue>
 #include <string>
 
-// Forward declare to avoid circular include — GraphicsAgent includes ViewHandler
-class GraphicsAgent;
-
 // Notification — passed directly to GraphicsAgent for display
 struct Notification {
     std::string message;
@@ -22,6 +19,8 @@ class View {
 
         virtual void draw() = 0;
         virtual int logic() = 0;
+        virtual void start() = 0;
+        virtual void close() = 0;
 };
 
 // ViewHandler — singleton
@@ -39,7 +38,7 @@ class ViewHandler {
 
     private:
         ViewHandler();
-        ~ViewHandler() = default;
+        ~ViewHandler();
         ViewHandler(const ViewHandler&) = delete;
         ViewHandler& operator=(const ViewHandler&) = delete;
 

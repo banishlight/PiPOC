@@ -1,9 +1,15 @@
 #include <ViewHandler.hpp>
 #include <agents/GraphicsAgent.hpp>
 #include <views/MainView.hpp>
+#include <views/OBDView.hpp>
 
 ViewHandler::ViewHandler() {
-    _activeView = std::make_unique<MainView>();
+    _activeView = std::make_unique<OBDView>();
+    _activeView->start();
+}
+
+ViewHandler::~ViewHandler() {
+    _activeView->close();
 }
 
 ViewHandler& ViewHandler::getInstance() {
@@ -12,10 +18,10 @@ ViewHandler& ViewHandler::getInstance() {
 }
 
 void ViewHandler::switchView(std::unique_ptr<View> view) {
-    // std::lock_guard<std::mutex> lock(_viewMutex);
-    // if (_activeView) _activeView->onExit();
-    // _activeView = std::move(view);
-    // if (_activeView) _activeView->onEnter();
+    std::lock_guard<std::mutex> lock(_viewMutex);
+    if (_activeView) _activeView->close();
+    _activeView = std::move(view);
+    if (_activeView) _activeView->start();
 }
 
 void ViewHandler::pushEvent(std::unique_ptr<AgentEvent> event) {

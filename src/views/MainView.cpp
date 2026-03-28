@@ -5,6 +5,14 @@ MainView::MainView() {}
 
 MainView::~MainView() {}
 
+void MainView::start() {
+
+}
+
+void MainView::close() {
+    
+}
+
 void MainView::draw() {
     DrawText("Main View", 100, 100, 20, WHITE);
 }
