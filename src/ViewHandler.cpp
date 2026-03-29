@@ -1,10 +1,10 @@
 #include <ViewHandler.hpp>
 #include <agents/GraphicsAgent.hpp>
 #include <views/MainView.hpp>
-#include <views/OBDView.hpp>
+// #include <views/OBDView.hpp>
 
 ViewHandler::ViewHandler() {
-    _activeView = std::make_unique<OBDView>();
+    _activeView = std::make_unique<MainView>();
     _activeView->start();
 }
 

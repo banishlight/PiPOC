@@ -5,28 +5,41 @@ AgentHandler& AgentHandler::getInstance() {
     return instance;
 }
 
-void AgentHandler::pushOBDRequest(std::unique_ptr<AgentEvent> event) {
+void AgentHandler::pushOBDRequest(OBDEvent event) {
     std::lock_guard<std::mutex> lock(_obdMutex);
-    _obdQueue.push(std::move(event));
+    _obdQueue.push(event);
 }
 
-std::unique_ptr<AgentEvent> AgentHandler::popOBDRequest() {
+OBDEvent AgentHandler::popOBDRequest() {
     std::lock_guard<std::mutex> lock(_obdMutex);
-    if (_obdQueue.empty()) return nullptr;
-    auto event = std::move(_obdQueue.front());
+    if (_obdQueue.empty()) return;
+    OBDEvent event = _obdQueue.front();
     _obdQueue.pop();
     return event;
 }
 
-void AgentHandler::pushBluetoothRequest(std::unique_ptr<AgentEvent> event) {
+void AgentHandler::pushBluetoothRequest(BTEvent event) {
     std::lock_guard<std::mutex> lock(_btMutex);
-    _btQueue.push(std::move(event));
+    _btQueue.push(event);
 }
 
-std::unique_ptr<AgentEvent> AgentHandler::popBluetoothRequest() {
+BTEvent AgentHandler::popBluetoothRequest() {
     std::lock_guard<std::mutex> lock(_btMutex);
-    if (_btQueue.empty()) return nullptr;
-    auto event = std::move(_btQueue.front());
+    if (_btQueue.empty()) return;
+    BTEvent event = _btQueue.front();
     _btQueue.pop();
+    return event;
+}
+
+void AgentHandler::pushGraphicsRequest(GFXEvent event) {
+    std::lock_guard<std::mutex> lock(_gfxMutex);
+    _gfxQueue.push(event);
+}
+
+GFXEvent AgentHandler::popGFXRequest() {
+    std::lock_guard<std::mutex> lock(_gfxMutex);
+    if (_gfxQueue.empty()) return;
+    GFXEvent event = _gfxQueue.front();
+    _gfxQueue.pop();
     return event;
 }
