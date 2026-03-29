@@ -15,7 +15,11 @@ struct Notification {
 
 // Events to be processed by the view
 class ViewEvent {
-
+    enum type {
+        TAP,
+        HOLD,
+        
+    };
 };
 
 // View — abstract base class for all views
