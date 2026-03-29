@@ -1,11 +1,11 @@
-#include <agents/GraphicsAgent.hpp>
+#include <agents/DisplayAgent.hpp>
 #include <agents/OBDAgent.hpp>
 #include <agents/BluetoothAgent.hpp>
 
 int main(void) {
     OBDAgent obda;
     BluetoothAgent bla;
-    GraphicsAgent ga;
+    DisplayAgent ga;
 
     obda.start();
     bla.start();

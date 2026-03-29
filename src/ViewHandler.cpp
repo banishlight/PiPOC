@@ -1,5 +1,5 @@
 #include <ViewHandler.hpp>
-#include <agents/GraphicsAgent.hpp>
+#include <agents/DisplayAgent.hpp>
 #include <views/MainView.hpp>
 // #include <views/OBDView.hpp>
 #include <optional>

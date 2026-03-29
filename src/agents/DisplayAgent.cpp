@@ -1,27 +1,27 @@
-#include <agents/GraphicsAgent.hpp>
+#include <agents/DisplayAgent.hpp>
 #include <ViewHandler.hpp>
 #include <chrono>
 #include <thread>
 #include <raylib.h>
 
-GraphicsAgent::GraphicsAgent() {
+DisplayAgent::DisplayAgent() {
     InitWindow(1024, 600, "PiPOC");
 }
 
-GraphicsAgent::~GraphicsAgent() {
+DisplayAgent::~DisplayAgent() {
 
 }
 
-void GraphicsAgent::start() {
+void DisplayAgent::start() {
     _running = true;
     run();
 }
 
-void GraphicsAgent::stop() {
+void DisplayAgent::stop() {
     _running = false;
 }
 
-void GraphicsAgent::run() {
+void DisplayAgent::run() {
     while (_running) {
         ViewHandler::getInstance().updateView();
         BeginDrawing();
@@ -32,6 +32,6 @@ void GraphicsAgent::run() {
 }
 
 // Draw any current notifications ontop of current view
-void GraphicsAgent::drawNotif() {
+void DisplayAgent::drawNotif() {
 
 }

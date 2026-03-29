@@ -2,10 +2,10 @@
 #include <atomic>
 #include <thread>
 
-class GraphicsAgent {
+class DisplayAgent {
     public:
-        GraphicsAgent();
-        ~GraphicsAgent();
+        DisplayAgent();
+        ~DisplayAgent();
         void start();
         void stop();
     private:
