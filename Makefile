@@ -17,6 +17,7 @@ default: directories $(TARGET)
 
 $(TARGET): $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDFLAGS)
+	cp -r assets $(BIN_DIR)/
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
