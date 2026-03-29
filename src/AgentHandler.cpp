@@ -1,4 +1,5 @@
 #include <AgentHandler.hpp>
+#include <optional>
 
 AgentHandler& AgentHandler::getInstance() {
     static AgentHandler instance;
@@ -10,9 +11,9 @@ void AgentHandler::pushOBDRequest(OBDEvent event) {
     _obdQueue.push(event);
 }
 
-OBDEvent AgentHandler::popOBDRequest() {
+std::optional<OBDEvent> AgentHandler::popOBDRequest() {
     std::lock_guard<std::mutex> lock(_obdMutex);
-    if (_obdQueue.empty()) return;
+    if (_obdQueue.empty()) return std::nullopt;
     OBDEvent event = _obdQueue.front();
     _obdQueue.pop();
     return event;
@@ -23,9 +24,9 @@ void AgentHandler::pushBluetoothRequest(BTEvent event) {
     _btQueue.push(event);
 }
 
-BTEvent AgentHandler::popBluetoothRequest() {
+std::optional<BTEvent> AgentHandler::popBluetoothRequest() {
     std::lock_guard<std::mutex> lock(_btMutex);
-    if (_btQueue.empty()) return;
+    if (_btQueue.empty()) return std::nullopt;
     BTEvent event = _btQueue.front();
     _btQueue.pop();
     return event;
@@ -36,9 +37,9 @@ void AgentHandler::pushGraphicsRequest(GFXEvent event) {
     _gfxQueue.push(event);
 }
 
-GFXEvent AgentHandler::popGFXRequest() {
+std::optional<GFXEvent> AgentHandler::popGFXRequest() {
     std::lock_guard<std::mutex> lock(_gfxMutex);
-    if (_gfxQueue.empty()) return;
+    if (_gfxQueue.empty()) return std::nullopt;
     GFXEvent event = _gfxQueue.front();
     _gfxQueue.pop();
     return event;

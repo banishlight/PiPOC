@@ -5,11 +5,17 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <optional>
 
 // Notification — passed directly to GraphicsAgent for display
 struct Notification {
     std::string message;
     float       duration = 3.0f;   // seconds to display
+};
+
+// Events to be processed by the view
+class ViewEvent {
+
 };
 
 // View — abstract base class for all views
@@ -29,10 +35,10 @@ class ViewHandler {
     public:
         static ViewHandler& getInstance();
         void switchView(std::unique_ptr<View> view);
-        void pushEvent(std::unique_ptr<AgentEvent> event);
+        void pushEvent(ViewEvent event);
+        std::optional<ViewEvent> popViewEvent();
 
         // Called by current active View
-        void processEvents();
         void updateView();
         void drawView();
 
@@ -45,6 +51,6 @@ class ViewHandler {
         std::unique_ptr<View> _activeView;
         std::mutex            _viewMutex;
 
-        std::queue<std::unique_ptr<AgentEvent>> _eventQueue;
-        std::mutex                              _eventMutex;
+        std::queue<ViewEvent> _eventQueue;
+        std::mutex            _eventMutex;
 };

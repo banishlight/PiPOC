@@ -4,6 +4,7 @@
 #include <mutex>
 #include <queue>
 #include <string>
+#include <optional>
 
 class OBDEvent {
 
@@ -24,13 +25,13 @@ public:
     static AgentHandler& getInstance();
 
     void pushOBDRequest(OBDEvent event);
-    OBDEvent popOBDRequest();
+    std::optional<OBDEvent> popOBDRequest();
 
     void pushBluetoothRequest(BTEvent event);
-    BTEvent popBluetoothRequest();
+    std::optional<BTEvent> popBluetoothRequest();
 
     void pushGraphicsRequest(GFXEvent event);
-    GFXEvent popGFXRequest();
+    std::optional<GFXEvent> popGFXRequest();
 
 private:
     AgentHandler() = default;
