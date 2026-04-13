@@ -15,11 +15,31 @@ struct Notification {
 
 // Events to be processed by the view
 class ViewEvent {
-    enum type {
-        TAP,
-        HOLD,
-        
-    };
+    public:
+        enum class Type {
+            INPUT,
+            OBD,
+            BLUETOOTH,
+        };
+        const Type type;
+        explicit ViewEvent(Type t) : type(t) {}
+        virtual ~ViewEvent() = default;
+};
+
+class InputEvent : public ViewEvent {
+    public:
+        InputEvent() : ViewEvent(Type::INPUT) {}
+        enum class InputType {
+            TAP,
+            HOLD,
+            SWIPE_LEFT,
+            SWIPE_RIGHT,
+            SWIPE_UP,
+            SWIPE_DOWN
+        };
+        InputType inputType = InputType::TAP;
+        float x = 0.0f;
+        float y = 0.0f;
 };
 
 // View — abstract base class for all views

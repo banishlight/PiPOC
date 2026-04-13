@@ -5,6 +5,7 @@
 #include <optional>
 
 ViewHandler::ViewHandler() {
+    // Startup view
     _activeView = std::make_unique<MainView>();
     _activeView->start();
 }
