@@ -16,7 +16,7 @@ DEPS:=$(OBJ:.o=.d)
 default: directories $(TARGET)
 
 pi: CXXFLAGS += -DGRAPHICS_API_OPENGL_21
-pi: LDFLAGS += -latomic
+pi: LDFLAGS += -latomic -lX11 -ldl
 pi: default
 
 $(TARGET): $(OBJ)
