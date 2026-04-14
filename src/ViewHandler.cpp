@@ -2,7 +2,6 @@
 #include <agents/DisplayAgent.hpp>
 #include <views/MainView.hpp>
 // #include <views/OBDView.hpp>
-#include <optional>
 
 ViewHandler::ViewHandler() {
     // Startup view
@@ -26,17 +25,16 @@ void ViewHandler::switchView(std::unique_ptr<View> view) {
     if (_activeView) _activeView->start();
 }
 
-void ViewHandler::pushEvent(ViewEvent event) {
+void ViewHandler::pushEvent(std::unique_ptr<ViewEvent> event) {
     std::lock_guard<std::mutex> lock(_eventMutex);
-    _eventQueue.push(event);
+    _eventQueue.push_back(std::move(event));
 }
 
-std::optional<ViewEvent> ViewHandler::popViewEvent() {
+std::vector<std::unique_ptr<ViewEvent>> ViewHandler::popViewEvents() {
     std::lock_guard<std::mutex> lock(_eventMutex);
-    if (_eventQueue.empty()) return std::nullopt;
-    ViewEvent event = _eventQueue.front();
-    _eventQueue.pop();
-    return event;
+    std::vector<std::unique_ptr<ViewEvent>> e = std::move(_eventQueue);
+    _eventQueue.clear();
+    return e;
 }
 
 void ViewHandler::updateView() {

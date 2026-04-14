@@ -1,5 +1,7 @@
 #pragma once
 #include <ViewHandler.hpp>
+#include <widgets/Widget.hpp>
+#include <vector>
 
 class MainView : public View {
     public:
@@ -10,5 +12,7 @@ class MainView : public View {
         void start() override;
         void close() override;
     private:
-        void fetchEvents();
+        void _fetchEvents();
+        void _drawWidgets();
+        std::vector<Widget> _widgets;
 };

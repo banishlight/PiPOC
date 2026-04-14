@@ -59,8 +59,8 @@ class ViewHandler {
     public:
         static ViewHandler& getInstance();
         void switchView(std::unique_ptr<View> view);
-        void pushEvent(ViewEvent event);
-        std::optional<ViewEvent> popViewEvent();
+        void pushEvent(std::unique_ptr<ViewEvent> event);
+        std::vector<std::unique_ptr<ViewEvent>> popViewEvents();
 
         // Called by current active View
         void updateView();
@@ -75,6 +75,6 @@ class ViewHandler {
         std::unique_ptr<View> _activeView;
         std::mutex            _viewMutex;
 
-        std::queue<ViewEvent> _eventQueue;
+        std::vector<std::unique_ptr<ViewEvent>> _eventQueue;
         std::mutex            _eventMutex;
 };
