@@ -6,7 +6,8 @@
 #include <memory>
 
 DisplayAgent::DisplayAgent() {
-    InitWindow(1024, 600, "PiPOC");
+    InitWindow(DIS_WIDTH, DIS_HEIGHT, "PiPOC");
+    SetTargetFPS(MAX_FPS);
 }
 
 DisplayAgent::~DisplayAgent() {
