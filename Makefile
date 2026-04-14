@@ -11,9 +11,12 @@ SRC:=$(shell find $(SRC_DIR) -name '*.cpp')
 OBJ:=$(SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 DEPS:=$(OBJ:.o=.d)
 
-.PHONY: default clean directories
+.PHONY: default clean directories pi
 
 default: directories $(TARGET)
+
+pi: LDFLAGS += -latomic
+pi: default
 
 $(TARGET): $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDFLAGS)
