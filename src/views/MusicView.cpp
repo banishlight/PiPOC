@@ -146,7 +146,7 @@ int MusicView::logic() {
         }
 
         // Normalize and scale
-        float target = std::min(1.0f, magnitude / 500.0f);
+        float target = std::min(1.0f, magnitude / 50.0f);
         _targetHeights[bar] = target;
     }
 
