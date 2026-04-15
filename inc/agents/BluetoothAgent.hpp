@@ -25,6 +25,7 @@ private:
     bool        findLastPairedDevice();
     bool        connectDevice(const std::string& devicePath);
     void        watchConnectionState();
+    void        setDeviceName(const std::string& name);
 
     // MPRIS metadata
     void        pollMPRIS();
@@ -43,4 +44,5 @@ private:
     bool          _connected     = false;
 
     static constexpr int kPollIntervalMs = 1000;  // MPRIS poll rate
+    static constexpr std::string BT_NAME = "CarPi";
 };

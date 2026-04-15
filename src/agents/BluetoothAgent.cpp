@@ -23,6 +23,7 @@ void BluetoothAgent::run(std::stop_token stopToken) {
         std::cerr << "[BT] Failed to connect to D-Bus\n";
         return;
     }
+    setDeviceName(BT_NAME);
 
     // Try to find and connect to last paired device on startup
     if (findLastPairedDevice()) {
@@ -295,4 +296,43 @@ void BluetoothAgent::pushPlaybackState(bool playing) {
     event->btType  = BTEvent::BTType::PlaybackStateChanged;
     event->playing = playing;
     ViewHandler::getInstance().pushEvent(std::move(event));
+}
+
+void BluetoothAgent::setDeviceName(const std::string& name) {
+    if (!_dbus) return;
+
+    DBusError error;
+    dbus_error_init(&error);
+
+    DBusMessage* msg = dbus_message_new_method_call(
+        "org.bluez",
+        "/org/bluez/hci0",
+        "org.freedesktop.DBus.Properties",
+        "Set"
+    );
+
+    if (!msg) return;
+
+    const char* iface = "org.bluez.Adapter1";
+    const char* prop  = "Alias";
+    const char* value = name.c_str();
+
+    DBusMessageIter iter, variant;
+    dbus_message_iter_init_append(msg, &iter);
+    dbus_message_iter_append_basic(&iter, DBUS_TYPE_STRING, &iface);
+    dbus_message_iter_append_basic(&iter, DBUS_TYPE_STRING, &prop);
+    dbus_message_iter_open_container(&iter, DBUS_TYPE_VARIANT, "s", &variant);
+    dbus_message_iter_append_basic(&variant, DBUS_TYPE_STRING, &value);
+    dbus_message_iter_close_container(&iter, &variant);
+
+    DBusMessage* reply = dbus_connection_send_with_reply_and_block(
+        _dbus, msg, 1000, &error
+    );
+    dbus_message_unref(msg);
+
+    if (dbus_error_is_set(&error)) {
+        std::cerr << "[BT] Set name failed: " << error.message << "\n";
+        dbus_error_free(&error);
+    }
+    if (reply) dbus_message_unref(reply);
 }
