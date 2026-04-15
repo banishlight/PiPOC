@@ -12,14 +12,14 @@ OBDAgent::~OBDAgent() {
 
 void OBDAgent::start() {
     _running = true;
-    _thread = std::jthread(&OBDAgent::run, this);
+    _thread = std::jthread([this](std::stop_token st) { run(st); });
 }
 
 void OBDAgent::stop() {
     _running = false;
 }
 
-void OBDAgent::run() {
+void OBDAgent::run(std::stop_token stopToken) {
     while (_running) {
 
 

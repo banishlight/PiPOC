@@ -9,7 +9,7 @@ class OBDAgent {
         void start();
         void stop();
     private:
-        void run();
+        void run(std::stop_token stopToken);
         std::jthread _thread;
         std::atomic<bool> _running{false};
 };
