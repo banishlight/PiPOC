@@ -67,7 +67,7 @@ void MusicView::draw() {
     dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
     DrawTextEx(_font, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);
 
-    DrawTextEx(_font, std::to_string(GetFPS()).c_str(), {0, 0}, 20, 1, RED);
+    DrawTextEx(_font, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
 }
 
 int MusicView::logic() {
