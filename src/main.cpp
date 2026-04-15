@@ -4,14 +4,14 @@
 
 int main(void) {
     OBDAgent obda;
-    BluetoothAgent bla;
+    BluetoothAgent bta;
     DisplayAgent ga;
 
     obda.start();
-    bla.start();
+    bta.start();
     ga.start(); // This agent runs on current main thread
     
     obda.stop();
-    bla.stop();
+    bta.stop();
     return 0;
 }

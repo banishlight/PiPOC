@@ -11,6 +11,10 @@ SRC:=$(shell find $(SRC_DIR) -name '*.cpp')
 OBJ:=$(SRC:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 DEPS:=$(OBJ:.o=.d)
 
+#Dbus additions
+CXXFLAGS += $(shell pkg-config --cflags dbus-1)
+LDFLAGS += $(shell pkg-config --libs dbus-1)
+
 .PHONY: default clean directories pi
 
 default: directories $(TARGET)

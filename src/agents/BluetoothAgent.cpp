@@ -10,7 +10,7 @@ BluetoothAgent::~BluetoothAgent() {
 }
 
 void BluetoothAgent::start() {
-    _thread = std::jthread(&BluetoothAgent::run, this);
+    _thread = std::jthread([this](std::stop_token st) { run(st); });
 }
 
 void BluetoothAgent::stop() {
