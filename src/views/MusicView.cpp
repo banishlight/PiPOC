@@ -65,10 +65,6 @@ void MusicView::close() {
 }
 
 void MusicView::draw() {
-    for (auto& widget : _widgets) {
-        widget->draw();
-    }
-    
     Color bg        = {10,  10,  10,  255};
     Color barColor  = {39,  174, 96,  255};  // green placeholder
     Color dimText   = {120, 120, 120, 255};
@@ -113,6 +109,10 @@ void MusicView::draw() {
     DrawTextEx(_font, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);
 
     DrawTextEx(_font, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
+
+    for (auto& widget : _widgets) {
+        widget->draw();
+    }
 }
 
 int MusicView::logic() {
