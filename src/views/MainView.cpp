@@ -22,7 +22,7 @@ void MainView::start() {
     _widgets.push_back(std::move(mscBtn));
 
     // Un comment when map is implemented
-    // auto mapBtn = std::make_unique<Button>(412, 200, 200, 60, "Music");
+    // auto mapBtn = std::make_unique<Button>(412, 200, 200, 60, "Map");
     // mapBtn->setOnClick([this]() {
     //     ViewHandler::getInstance().switchView(std::make_unique<MapView>());
     // });
