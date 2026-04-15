@@ -61,7 +61,8 @@ void DisplayAgent::run() {
         handleInput();
         ViewHandler::getInstance().updateView();
         BeginDrawing();
-        ViewHandler::getInstance().drawView();
+            ClearBackground(BLACK);
+            ViewHandler::getInstance().drawView();
         EndDrawing();
     }
 }
