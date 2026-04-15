@@ -1,5 +1,6 @@
 #include <views/MusicView.hpp>
 #include <cmath>
+#include <iostream>
 
 MusicView::MusicView() {}
 
@@ -79,6 +80,10 @@ void MusicView::_fetchEvents() {
         switch (e->type) {
             case ViewEvent::Type::BLUETOOTH: {
                 auto* bt = static_cast<BTEvent*>(e.get());
+                // Debugging
+                std::cout << "[MusicView] BTEvent received, btType: " << (int)bt->btType << "\n";
+                std::cout << "[MusicView] Title: " << bt->title << "\n";
+                std::cout << "[MusicView] Artist: " << bt->artist << "\n";
                 switch (bt->btType) {
                     case BTEvent::BTType::DeviceConnected:
                         _connected  = true;
