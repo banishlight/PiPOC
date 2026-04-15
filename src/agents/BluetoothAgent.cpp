@@ -131,9 +131,6 @@ bool BluetoothAgent::findLastPairedDevice() {
             dbus_message_iter_next(&arrayIter);
         }
     }
-    // Debugging
-    std::cout << "[BT] Device path: " << _devicePath << "\n";
-    std::cout << "[BT] Player path: " << _playerPath << "\n";
     dbus_message_unref(reply);
     return found;
 }
@@ -255,7 +252,6 @@ void BluetoothAgent::watchConnectionState() {
 }
 
 void BluetoothAgent::pollMPRIS() {
-    std::cout << "[BT] Polling MPRIS on path: " << _playerPath << "\n";
     if (!_dbus) return;
 
     DBusError error;
@@ -341,11 +337,6 @@ void BluetoothAgent::pollMPRIS() {
     }
 
     dbus_message_unref(reply);
-
-    // Debugging
-    std::cout << "[BT] Title: " << title << "\n";
-    std::cout << "[BT] Artist: " << artist << "\n";
-    std::cout << "[BT] Status: " << status << "\n";
 
     // Push track changed event if title changed
     if (!title.empty() && title != _lastTitle) {

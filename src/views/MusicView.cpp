@@ -66,6 +66,8 @@ void MusicView::draw() {
     std::string dbg = "BT: " + std::string(_connected ? "connected" : "disconnected");
     dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
     DrawTextEx(_font, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);
+
+    DrawTextEx(_font, std::to_string(GetFPS()).c_str(), {0, 0}, 20, 1, RED);
 }
 
 int MusicView::logic() {
@@ -80,10 +82,6 @@ void MusicView::_fetchEvents() {
         switch (e->type) {
             case ViewEvent::Type::BLUETOOTH: {
                 auto* bt = static_cast<BTEvent*>(e.get());
-                // Debugging
-                std::cout << "[MusicView] BTEvent received, btType: " << (int)bt->btType << "\n";
-                std::cout << "[MusicView] Title: " << bt->title << "\n";
-                std::cout << "[MusicView] Artist: " << bt->artist << "\n";
                 switch (bt->btType) {
                     case BTEvent::BTType::DeviceConnected:
                         _connected  = true;
