@@ -1,4 +1,6 @@
 #include <views/MusicView.hpp>
+#include <widgets/Button.hpp>
+#include <views/MainView.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -8,6 +10,12 @@ MusicView::~MusicView() {}
 
 void MusicView::start() {
     _font = LoadFontEx(_fontPath.c_str(), 64, nullptr, 0);
+
+    auto backBtn = std::make_unique<Button>(W - 168, H - 52, 160, 36, "BACK");
+    backBtn->setOnClick([this]() {
+        ViewHandler::getInstance().switchView(std::make_unique<MainView>());
+    });
+    _widgets.push_back(std::move(backBtn));
 
     // Init PulseAudio monitor source
     pa_sample_spec spec;
@@ -57,9 +65,10 @@ void MusicView::close() {
 }
 
 void MusicView::draw() {
-    const int W = 1024;
-    const int H = 600;
-
+    for (auto& widget : _widgets) {
+        widget->draw();
+    }
+    
     Color bg        = {10,  10,  10,  255};
     Color barColor  = {39,  174, 96,  255};  // green placeholder
     Color dimText   = {120, 120, 120, 255};
@@ -96,8 +105,8 @@ void MusicView::draw() {
     DrawTextEx(_font, _playing ? "PLAYING" : "PAUSED",
                {160, (float)(H - 72)}, 16, 1, _playing ? barColor : dimText);
 
-    DrawRectangle(W - 168, H - 52, 160, 36, {40, 40, 40, 255});
-    DrawTextEx(_font, "BACK", {(float)(W - 140), (float)(H - 40)}, 16, 1, WHITE);
+    // DrawRectangle(W - 168, H - 52, 160, 36, {40, 40, 40, 255});
+    // DrawTextEx(_font, "BACK", {(float)(W - 140), (float)(H - 40)}, 16, 1, WHITE);
 
     std::string dbg = "BT: " + std::string(_connected ? "connected" : "disconnected");
     dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
