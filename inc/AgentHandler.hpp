@@ -6,15 +6,15 @@
 #include <string>
 #include <optional>
 
-class OBDEvent {
+class OBDRequest {
 
 };
 
-class BTEvent {
+class BTRequest {
 
 };
 
-class GFXEvent {
+class GFXRequest {
 
 };
 
@@ -24,14 +24,14 @@ class AgentHandler {
 public:
     static AgentHandler& getInstance();
 
-    void pushOBDRequest(OBDEvent event);
-    std::optional<OBDEvent> popOBDRequest();
+    void pushOBDRequest(OBDRequest event);
+    std::optional<OBDRequest> popOBDRequest();
 
-    void pushBluetoothRequest(BTEvent event);
-    std::optional<BTEvent> popBluetoothRequest();
+    void pushBluetoothRequest(BTRequest event);
+    std::optional<BTRequest> popBluetoothRequest();
 
-    void pushGraphicsRequest(GFXEvent event);
-    std::optional<GFXEvent> popGFXRequest();
+    void pushGraphicsRequest(GFXRequest event);
+    std::optional<GFXRequest> popGFXRequest();
 
 private:
     AgentHandler() = default;
@@ -39,12 +39,12 @@ private:
     AgentHandler(const AgentHandler&) = delete;
     AgentHandler& operator=(const AgentHandler&) = delete;
 
-    std::queue<OBDEvent> _obdQueue;
+    std::queue<OBDRequest> _obdQueue;
     std::mutex           _obdMutex;
 
-    std::queue<BTEvent>  _btQueue;
+    std::queue<BTRequest>  _btQueue;
     std::mutex           _btMutex;
 
-    std::queue<GFXEvent> _gfxQueue;
+    std::queue<GFXRequest> _gfxQueue;
     std::mutex           _gfxMutex;
 };

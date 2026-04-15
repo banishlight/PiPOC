@@ -1,6 +1,6 @@
 CXX:=g++
 CXXFLAGS:= -Wall -Wextra -std=c++20 -MMD
-LDFLAGS:= -lraylib -lm -lpthread
+LDFLAGS:= -lraylib -lm -lpthread -ldbus-1
 SRC_DIR:=src
 INC_DIR:=inc
 BUILD_DIR:=build
@@ -16,7 +16,7 @@ DEPS:=$(OBJ:.o=.d)
 default: directories $(TARGET)
 
 pi: CXXFLAGS += -DGRAPHICS_API_OPENGL_21
-pi: LDFLAGS += -latomic -lX11 -ldl
+pi: LDFLAGS += -latomic -lX11 -ldl -lpulse-simple -lpulse 
 pi: default
 
 $(TARGET): $(OBJ)

@@ -42,6 +42,24 @@ class InputEvent : public ViewEvent {
         float y = 0.0f;
 };
 
+class BTEvent : public ViewEvent {
+    public:
+        enum class BTType {
+            DeviceConnected,
+            DeviceDisconnected,
+            TrackChanged,
+            PlaybackStateChanged,
+        };
+
+        BTType      btType = BTType::TrackChanged;
+        std::string title;
+        std::string artist;
+        std::string deviceName;
+        bool        playing = false;
+
+        BTEvent() : ViewEvent(Type::BLUETOOTH) {}
+};
+
 // View — abstract base class for all views
 class View {
     public:
