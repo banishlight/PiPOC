@@ -52,6 +52,9 @@ void MusicView::close() {
     _capturing = false;
     _captureThread.request_stop();
 
+    // Wait for capture thread to finish before freeing pulse
+    if (_captureThread.joinable()) _captureThread.join();
+
     if (_pulse) {
         pa_simple_free(_pulse);
         _pulse = nullptr;
