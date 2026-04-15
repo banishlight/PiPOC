@@ -14,6 +14,7 @@ class MusicView : public View {
     private:
         void _fetchEvents();
         std::vector<std::unique_ptr<Widget>> _widgets;
+        bool        _playing    = false;
         std::string _title      = "No track";
         std::string _artist     = "No artist";
         std::string _deviceName = "Not connected";
