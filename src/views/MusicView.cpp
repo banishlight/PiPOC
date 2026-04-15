@@ -68,7 +68,7 @@ void MusicView::draw() {
 }
 
 int MusicView::logic() {
-
+    _fetchEvents();
 
     return 0;
 }
