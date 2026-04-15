@@ -42,6 +42,8 @@ private:
     std::string   _deviceName;
     std::string   _lastTitle;
     bool          _connected     = false;
+    std::string   _playerPath;
+    bool          _playing = false;
 
     static constexpr int kPollIntervalMs = 1000;  // MPRIS poll rate
     static constexpr const char* BT_NAME = "CarPi";

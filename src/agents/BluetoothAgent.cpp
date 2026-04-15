@@ -110,11 +110,19 @@ bool BluetoothAgent::findLastPairedDevice() {
             const char* path = nullptr;
             dbus_message_iter_get_basic(&dictIter, &path);
 
-            if (path && std::string(path).find("/org/bluez/hci0/dev_") != std::string::npos) {
-                _devicePath = path;
+            if (path) {
+            std::string p(path);
+            if (p.find("/org/bluez/hci0/dev_") != std::string::npos
+                && p.find("player") == std::string::npos) {
+                _devicePath = p;
                 found = true;
-                break;
             }
+            if (!_devicePath.empty()
+                && p.find(_devicePath) != std::string::npos
+                && p.find("player") != std::string::npos) {
+                _playerPath = p;
+            }
+        }
             dbus_message_iter_next(&arrayIter);
         }
     }
@@ -204,12 +212,103 @@ void BluetoothAgent::watchConnectionState() {
 }
 
 void BluetoothAgent::pollMPRIS() {
-    std::string title  = getMPRISProperty("xesam:title");
-    std::string artist = getMPRISProperty("xesam:artist");
+    if (!_dbus) return;
 
+    DBusError error;
+    dbus_error_init(&error);
+
+    DBusMessage* msg = dbus_message_new_method_call(
+        "org.bluez",
+        _playerPath.c_str(),
+        "org.freedesktop.DBus.Properties",
+        "GetAll"
+    );
+
+    if (!msg) return;
+
+    const char* iface = "org.bluez.MediaPlayer1";
+    dbus_message_append_args(msg,
+        DBUS_TYPE_STRING, &iface,
+        DBUS_TYPE_INVALID
+    );
+
+    DBusMessage* reply = dbus_connection_send_with_reply_and_block(
+        _dbus, msg, 1000, &error
+    );
+    dbus_message_unref(msg);
+
+    if (dbus_error_is_set(&error) || !reply) {
+        dbus_error_free(&error);
+        return;
+    }
+
+    std::string title, artist, album, status;
+
+    DBusMessageIter iter, arrayIter;
+    dbus_message_iter_init(reply, &iter);
+    dbus_message_iter_recurse(&iter, &arrayIter);
+
+    while (dbus_message_iter_get_arg_type(&arrayIter) == DBUS_TYPE_DICT_ENTRY) {
+        DBusMessageIter dictIter;
+        dbus_message_iter_recurse(&arrayIter, &dictIter);
+
+        const char* key = nullptr;
+        dbus_message_iter_get_basic(&dictIter, &key);
+        dbus_message_iter_next(&dictIter);
+
+        if (key && std::string(key) == "Status") {
+            DBusMessageIter varIter;
+            dbus_message_iter_recurse(&dictIter, &varIter);
+            const char* val = nullptr;
+            dbus_message_iter_get_basic(&varIter, &val);
+            if (val) status = val;
+        }
+
+        if (key && std::string(key) == "Track") {
+            DBusMessageIter varIter, trackArrayIter;
+            dbus_message_iter_recurse(&dictIter, &varIter);
+            dbus_message_iter_recurse(&varIter, &trackArrayIter);
+
+            while (dbus_message_iter_get_arg_type(&trackArrayIter) == DBUS_TYPE_DICT_ENTRY) {
+                DBusMessageIter trackDictIter;
+                dbus_message_iter_recurse(&trackArrayIter, &trackDictIter);
+
+                const char* trackKey = nullptr;
+                dbus_message_iter_get_basic(&trackDictIter, &trackKey);
+                dbus_message_iter_next(&trackDictIter);
+
+                DBusMessageIter trackVarIter;
+                dbus_message_iter_recurse(&trackDictIter, &trackVarIter);
+
+                if (dbus_message_iter_get_arg_type(&trackVarIter) == DBUS_TYPE_STRING) {
+                    const char* val = nullptr;
+                    dbus_message_iter_get_basic(&trackVarIter, &val);
+                    if (val && trackKey) {
+                        std::string k(trackKey);
+                        if (k == "Title")  title  = val;
+                        if (k == "Artist") artist = val;
+                        if (k == "Album")  album  = val;
+                    }
+                }
+                dbus_message_iter_next(&trackArrayIter);
+            }
+        }
+        dbus_message_iter_next(&arrayIter);
+    }
+
+    dbus_message_unref(reply);
+
+    // Push track changed event if title changed
     if (!title.empty() && title != _lastTitle) {
         _lastTitle = title;
         pushTrackChanged(title, artist);
+    }
+
+    // Push playback state change
+    bool playing = (status == "playing");
+    if (playing != _playing) {
+        _playing = playing;
+        pushPlaybackState(playing);
     }
 }
 
