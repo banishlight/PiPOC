@@ -23,20 +23,19 @@ void BluetoothAgent::run(std::stop_token stopToken) {
         std::cerr << "[BT] Failed to connect to D-Bus\n";
         return;
     }
-    setDeviceName(BT_NAME);
-
-    // Try to find and connect to last paired device on startup
-    if (findLastPairedDevice()) {
-        if (connectDevice(_devicePath)) {
-            pushConnectionEvent(BTEvent::BTType::DeviceConnected, _deviceName);
-            _connected = true;
-        }
-    }
-
+    
     while (!stopToken.stop_requested()) {
+        if (_devicePath.empty() || _playerPath.empty()) {
+            if (findLastPairedDevice()) {
+                connectDevice(_devicePath);
+                pushConnectionEvent(BTEvent::BTType::DeviceConnected, _deviceName);
+                _connected = true;
+            }
+        }
+
         watchConnectionState();
 
-        if (_connected) {
+        if (_connected && !_playerPath.empty()) {
             pollMPRIS();
         }
 
@@ -252,6 +251,7 @@ void BluetoothAgent::watchConnectionState() {
 }
 
 void BluetoothAgent::pollMPRIS() {
+    if (_playerPath.empty()) return;
     if (!_dbus) return;
 
     DBusError error;
