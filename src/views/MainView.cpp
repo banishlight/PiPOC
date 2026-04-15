@@ -1,4 +1,7 @@
 #include <views/MainView.hpp>
+#include <views/OBDView.hpp>
+#include <views/MusicView.hpp>
+#include <widgets/Button.hpp>
 #include <raylib.h>
 
 MainView::MainView() {}
@@ -6,7 +9,24 @@ MainView::MainView() {}
 MainView::~MainView() {}
 
 void MainView::start() {
+    auto obdBtn = std::make_unique<Button>(112, 200, 200, 60, "OBD");
+    obdBtn->setOnClick([this]() {
+        ViewHandler::getInstance().switchView(std::make_unique<OBDView>());
+    });
+    _widgets.push_back(std::move(obdBtn));
 
+    auto mscBtn = std::make_unique<Button>(412, 200, 200, 60, "Music");
+    mscBtn->setOnClick([this]() {
+        ViewHandler::getInstance().switchView(std::make_unique<MusicView>());
+    });
+    _widgets.push_back(std::move(mscBtn));
+
+    // Un comment when map is implemented
+    // auto mapBtn = std::make_unique<Button>(412, 200, 200, 60, "Music");
+    // mapBtn->setOnClick([this]() {
+    //     ViewHandler::getInstance().switchView(std::make_unique<MapView>());
+    // });
+    // _widgets.push_back(std::move(mapBtn));
 }
 
 void MainView::close() {
@@ -14,7 +34,9 @@ void MainView::close() {
 }
 
 void MainView::draw() {
-    DrawText("Main View", 100, 100, 20, WHITE);
+    for (auto& widget : _widgets) {
+        widget->draw();
+    }
 }
 
 int MainView::logic() {
@@ -37,7 +59,7 @@ void MainView::_fetchEvents() {
                     case InputEvent::InputType::SWIPE_DOWN:
                     case InputEvent::InputType::HOLD:
                         for (auto& w : _widgets) {
-                            if (w.handleEvent(*input)) break;
+                            if (w->handleEvent(*input)) break;
                         }
                         break;
                     default:

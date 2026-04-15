@@ -14,5 +14,5 @@ class MainView : public View {
     private:
         void _fetchEvents();
         void _drawWidgets();
-        std::vector<Widget> _widgets;
+        std::vector<std::unique_ptr<Widget>> _widgets;
 };
