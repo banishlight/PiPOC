@@ -111,18 +111,23 @@ bool BluetoothAgent::findLastPairedDevice() {
             dbus_message_iter_get_basic(&dictIter, &path);
 
             if (path) {
-            std::string p(path);
-            if (p.find("/org/bluez/hci0/dev_") != std::string::npos
-                && p.find("player") == std::string::npos) {
-                _devicePath = p;
-                found = true;
+                std::string p(path);
+                // Device path must end with the MAC address format dev_XX_XX_XX_XX_XX_XX
+                // so it should not contain any further path segments after the MAC
+                bool isDevice = p.find("/org/bluez/hci0/dev_") != std::string::npos
+                            && p.find("player") == std::string::npos
+                            && p.find("/fd") == std::string::npos
+                            && std::count(p.begin(), p.end(), '/') == 4;
+
+                if (isDevice) {
+                    _devicePath = p;
+                }
+                if (!_devicePath.empty()
+                    && p.find(_devicePath) != std::string::npos
+                    && p.find("player") != std::string::npos) {
+                    _playerPath = p;
+                }
             }
-            if (!_devicePath.empty()
-                && p.find(_devicePath) != std::string::npos
-                && p.find("player") != std::string::npos) {
-                _playerPath = p;
-            }
-        }
             dbus_message_iter_next(&arrayIter);
         }
     }
