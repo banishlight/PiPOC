@@ -24,10 +24,7 @@ void MusicView::draw() {
 
     DrawRectangle(0, 0, W, H, bg);
 
-    // ----------------------------------------------------------------
-    // Visualizer bars — placeholder, will be driven by FFT later
-    // Bars sit in the top 60% of the screen
-    // ----------------------------------------------------------------
+    // Visualizer
     const int barCount  = 48;
     const int barW      = 16;
     const int barGap    = 4;
@@ -50,9 +47,6 @@ void MusicView::draw() {
         DrawRectangle(bx, by, barW, bh, barColor);
     }
 
-    // ----------------------------------------------------------------
-    // Bottom left — album art placeholder + track info
-    // ----------------------------------------------------------------
     // Album art placeholder box
     DrawRectangle(20, H - 160, 120, 120, {30, 30, 30, 255});
     DrawRectangleLines(20, H - 160, 120, 120, {60, 60, 60, 255});
@@ -62,21 +56,12 @@ void MusicView::draw() {
     DrawTextEx(_font, _title.c_str(),  {160, (float)(H - 150)}, 36, 1, WHITE);
     DrawTextEx(_font, _artist.c_str(), {160, (float)(H - 106)}, 22, 1, dimText);
 
-    // ----------------------------------------------------------------
-    // Playback status
-    // ----------------------------------------------------------------
     DrawTextEx(_font, _playing ? "PLAYING" : "PAUSED",
                {160, (float)(H - 72)}, 16, 1, _playing ? barColor : dimText);
 
-    // ----------------------------------------------------------------
-    // Bottom right — back button
-    // ----------------------------------------------------------------
     DrawRectangle(W - 168, H - 52, 160, 36, {40, 40, 40, 255});
     DrawTextEx(_font, "BACK", {(float)(W - 140), (float)(H - 40)}, 16, 1, WHITE);
 
-    // ----------------------------------------------------------------
-    // Debug info — bottom left corner
-    // ----------------------------------------------------------------
     std::string dbg = "BT: " + std::string(_connected ? "connected" : "disconnected");
     dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
     DrawTextEx(_font, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);

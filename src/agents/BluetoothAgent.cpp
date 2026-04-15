@@ -134,10 +134,46 @@ bool BluetoothAgent::findLastPairedDevice() {
 bool BluetoothAgent::connectDevice(const std::string& devicePath) {
     if (!_dbus) return false;
 
+    // Check if already connected first
     DBusError error;
     dbus_error_init(&error);
 
     DBusMessage* msg = dbus_message_new_method_call(
+        "org.bluez",
+        devicePath.c_str(),
+        "org.freedesktop.DBus.Properties",
+        "Get"
+    );
+
+    const char* iface = "org.bluez.Device1";
+    const char* prop  = "Connected";
+    dbus_message_append_args(msg,
+        DBUS_TYPE_STRING, &iface,
+        DBUS_TYPE_STRING, &prop,
+        DBUS_TYPE_INVALID
+    );
+
+    DBusMessage* reply = dbus_connection_send_with_reply_and_block(
+        _dbus, msg, 1000, &error
+    );
+    dbus_message_unref(msg);
+
+    if (!dbus_error_is_set(&error) && reply) {
+        DBusMessageIter iter, varIter;
+        dbus_message_iter_init(reply, &iter);
+        dbus_message_iter_recurse(&iter, &varIter);
+        dbus_bool_t connected = false;
+        dbus_message_iter_get_basic(&varIter, &connected);
+        dbus_message_unref(reply);
+        if (connected) {
+            std::cout << "[BT] Device already connected\n";
+            return true;
+        }
+    }
+
+    // Not connected — proceed with Connect call
+    dbus_error_init(&error);
+    msg = dbus_message_new_method_call(
         "org.bluez",
         devicePath.c_str(),
         "org.bluez.Device1",
@@ -146,7 +182,7 @@ bool BluetoothAgent::connectDevice(const std::string& devicePath) {
 
     if (!msg) return false;
 
-    DBusMessage* reply = dbus_connection_send_with_reply_and_block(
+    reply = dbus_connection_send_with_reply_and_block(
         _dbus, msg, 5000, &error
     );
     dbus_message_unref(msg);
