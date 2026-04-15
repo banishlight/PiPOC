@@ -342,6 +342,11 @@ void BluetoothAgent::pollMPRIS() {
 
     dbus_message_unref(reply);
 
+    // Debugging
+    std::cout << "[BT] Title: " << title << "\n";
+    std::cout << "[BT] Artist: " << artist << "\n";
+    std::cout << "[BT] Status: " << status << "\n";
+
     // Push track changed event if title changed
     if (!title.empty() && title != _lastTitle) {
         _lastTitle = title;
