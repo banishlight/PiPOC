@@ -44,5 +44,5 @@ private:
     bool          _connected     = false;
 
     static constexpr int kPollIntervalMs = 1000;  // MPRIS poll rate
-    static constexpr std::string BT_NAME = "CarPi";
+    static constexpr const char* BT_NAME = "CarPi";
 };
