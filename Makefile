@@ -1,6 +1,6 @@
 CXX:=g++
 CXXFLAGS:= -Wall -Wextra -std=c++20 -MMD
-LDFLAGS:= -lraylib -lm -lpthread -ldbus-1
+LDFLAGS:= -lraylib -lm -lpthread -ldbus-1 -lkissfft-float -lpulse-simple -lpulse
 SRC_DIR:=src
 INC_DIR:=inc
 BUILD_DIR:=build
@@ -20,7 +20,7 @@ LDFLAGS += $(shell pkg-config --libs dbus-1)
 default: directories $(TARGET)
 
 pi: CXXFLAGS += -DGRAPHICS_API_OPENGL_21
-pi: LDFLAGS += -latomic -lX11 -ldl -lpulse-simple -lpulse 
+pi: LDFLAGS += -latomic -lX11 -ldl 
 pi: default
 
 $(TARGET): $(OBJ)

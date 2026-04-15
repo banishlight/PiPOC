@@ -8,10 +8,52 @@ MusicView::~MusicView() {}
 
 void MusicView::start() {
     _font = LoadFontEx(_fontPath.c_str(), 64, nullptr, 0);
+
+    // Init PulseAudio monitor source
+    pa_sample_spec spec;
+    spec.format   = PA_SAMPLE_FLOAT32LE;
+    spec.channels = 1;
+    spec.rate     = kSampleRate;
+
+    int error;
+    _pulse = pa_simple_new(
+        nullptr,                    // default server
+        "PiPOC",                    // app name
+        PA_STREAM_RECORD,
+        "alsa_output.platform-bcm2835_audio.analog-stereo.monitor",  // Pi monitor source
+        "visualizer",               // stream name
+        &spec,
+        nullptr,                    // default channel map
+        nullptr,                    // default buffering
+        &error
+    );
+
+    if (!_pulse) {
+        std::cerr << "[VIS] PulseAudio error: " << pa_strerror(error) << "\n";
+    }
+
+    // Init KissFFT
+    _fftCfg = kiss_fftr_alloc(kBufferSize, 0, nullptr, nullptr);
+
+    // Start capture thread
+    _capturing = true;
+    _captureThread = std::jthread([this](std::stop_token st) { captureLoop(); });
 }
 
 void MusicView::close() {
-    
+    _capturing = false;
+    _captureThread.request_stop();
+
+    if (_pulse) {
+        pa_simple_free(_pulse);
+        _pulse = nullptr;
+    }
+    if (_fftCfg) {
+        kiss_fftr_free(_fftCfg);
+        _fftCfg = nullptr;
+    }
+
+    UnloadFont(_font);
 }
 
 void MusicView::draw() {
@@ -34,15 +76,9 @@ void MusicView::draw() {
     const int barBaseY  = (int)(H * 0.62f);
     const int barMaxH   = (int)(H * 0.55f);
 
-    for (int i = 0; i < barCount; i++) {
-        // Placeholder sine wave shape so it looks like the reference
-        float norm = (float)i / barCount;
-        float height = barMaxH * (
-            0.8f * expf(-6.0f * norm) +
-            0.3f * sinf(norm * 6.28f) +
-            0.1f
-        );
-        int bh = (int)height;
+    for (int i = 0; i < kBarCount; i++) {
+        int bh = (int)(_barHeights[i] * barMaxH);
+        bh = std::max(2, bh);  // minimum bar height so they're always visible
         int bx = barStartX + i * (barW + barGap);
         int by = barBaseY - bh;
         DrawRectangle(bx, by, barW, bh, barColor);
@@ -71,8 +107,59 @@ void MusicView::draw() {
 }
 
 int MusicView::logic() {
+    float dt = GetFrameTime();
     _fetchEvents();
+    if (!_fftCfg) return 0;
 
+    // Copy latest buffer safely
+    std::array<float, kBufferSize> buf;
+    {
+        std::lock_guard<std::mutex> lock(_bufferMutex);
+        buf = _pcmBuffer;
+    }
+
+    // Apply Hann window to reduce spectral leakage
+    for (int i = 0; i < kBufferSize; i++) {
+        float window = 0.5f * (1.0f - cosf(2.0f * M_PI * i / (kBufferSize - 1)));
+        buf[i] *= window;
+    }
+
+    // Run FFT
+    kiss_fftr(_fftCfg, buf.data(), _fftOut.data());
+
+    // Map FFT bins to bar heights
+    // Use logarithmic frequency spacing to match human hearing
+    int bins = kBufferSize / 2 + 1;
+    for (int bar = 0; bar < kBarCount; bar++) {
+        float freqLow  = 20.0f  * powf(1000.0f, (float)bar / kBarCount);
+        float freqHigh = 20.0f  * powf(1000.0f, (float)(bar + 1) / kBarCount);
+        int binLow  = (int)(freqLow  * kBufferSize / kSampleRate);
+        int binHigh = (int)(freqHigh * kBufferSize / kSampleRate);
+        binLow  = std::max(1, std::min(binLow,  bins - 1));
+        binHigh = std::max(1, std::min(binHigh, bins - 1));
+
+        float magnitude = 0.0f;
+        for (int b = binLow; b <= binHigh; b++) {
+            float re = _fftOut[b].r;
+            float im = _fftOut[b].i;
+            magnitude = std::max(magnitude, sqrtf(re * re + im * im));
+        }
+
+        // Normalize and scale
+        float target = std::min(1.0f, magnitude / 500.0f);
+        _targetHeights[bar] = target;
+    }
+
+    // Smooth interpolation
+    for (int i = 0; i < kBarCount; i++) {
+        if (_targetHeights[i] > _barHeights[i]) {
+            // Fast attack
+            _barHeights[i] += (_targetHeights[i] - _barHeights[i]) * kSmoothingFactor * dt;
+        } else {
+            // Slow decay
+            _barHeights[i] += (_targetHeights[i] - _barHeights[i]) * kDecayFactor * dt;
+        }
+    }
     return 0;
 }
 
@@ -116,5 +203,26 @@ void MusicView::_fetchEvents() {
             default:
                 break;
         }
+    }
+}
+
+void MusicView::captureLoop() {
+    std::array<float, kBufferSize> localBuf;
+    int error;
+
+    while (_capturing) {
+        if (!_pulse) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+
+        if (pa_simple_read(_pulse, localBuf.data(),
+                           localBuf.size() * sizeof(float), &error) < 0) {
+            std::cerr << "[VIS] Read error: " << pa_strerror(error) << "\n";
+            continue;
+        }
+
+        std::lock_guard<std::mutex> lock(_bufferMutex);
+        _pcmBuffer = localBuf;
     }
 }
