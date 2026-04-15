@@ -5,7 +5,7 @@ MusicView::MusicView() {}
 MusicView::~MusicView() {}
 
 void MusicView::start() {
-
+    _font = LoadFontEx(_fontPath.c_str(), 64, nullptr, 0);
 }
 
 void MusicView::close() {
