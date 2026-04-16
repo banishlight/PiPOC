@@ -24,9 +24,13 @@ void DisplayAgent::stop() {
 }
 
 void DisplayAgent::handleInput() {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        _pressPos = GetMousePosition();
+    }
+
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         _holdTime += 1;
-        if (_holdTime > HOLD_THRESH){
+        if (_holdTime > HOLD_THRESH) {
             Vector2 pos = GetMousePosition();
             auto event = std::make_unique<InputEvent>();
             event->inputType = InputEvent::InputType::HOLD;
@@ -36,21 +40,19 @@ void DisplayAgent::handleInput() {
         }
     } else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         _holdTime = 0;
-        // release frame
-        Vector2 delta = GetMouseDelta();
+        Vector2 releasePos = GetMousePosition();
+        float dx = releasePos.x - _pressPos.x;
+        float dy = releasePos.y - _pressPos.y;
+
         auto event = std::make_unique<InputEvent>();
-        event->x = delta.x;
-        event->y = delta.y;
-        if (delta.x > SWIPE_THRESH)       event->inputType = InputEvent::InputType::SWIPE_RIGHT;
-        else if (delta.x < -SWIPE_THRESH) event->inputType = InputEvent::InputType::SWIPE_LEFT;
-        else if (delta.y > SWIPE_THRESH)  event->inputType = InputEvent::InputType::SWIPE_DOWN;
-        else if (delta.y < -SWIPE_THRESH) event->inputType = InputEvent::InputType::SWIPE_UP;
-        else { 
-            // Didn't move far enough or hold long enough, TAP
-            Vector2 pos = GetMousePosition();
-            event->x = pos.x;
-            event->y = pos.y;
+        if (dx > SWIPE_THRESH)       event->inputType = InputEvent::InputType::SWIPE_RIGHT;
+        else if (dx < -SWIPE_THRESH) event->inputType = InputEvent::InputType::SWIPE_LEFT;
+        else if (dy > SWIPE_THRESH)  event->inputType = InputEvent::InputType::SWIPE_DOWN;
+        else if (dy < -SWIPE_THRESH) event->inputType = InputEvent::InputType::SWIPE_UP;
+        else {
             event->inputType = InputEvent::InputType::TAP;
+            event->x = releasePos.x;
+            event->y = releasePos.y;
         }
         ViewHandler::getInstance().pushEvent(std::move(event));
     }
