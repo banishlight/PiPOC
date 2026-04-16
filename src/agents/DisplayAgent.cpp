@@ -29,7 +29,7 @@ void DisplayAgent::stop() {
 
 void DisplayAgent::handleInput() {
     // Simple, only taps for now
-    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         Vector2 pos = GetMousePosition();
         auto event = std::make_unique<InputEvent>();
         event->inputType = InputEvent::InputType::TAP;
