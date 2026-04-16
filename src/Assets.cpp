@@ -11,10 +11,10 @@ namespace Assets {
 
     void load() {
         mainFont = LoadFontEx("assets/roboto.ttf", 64, nullptr, 0);
-        catFont = LoadFontEx("assets/Rajdhani-Regular.ttf", 64, nullptr, 0);
-        catFont16 = LoadFontEx("assets/Rajdhani-Regular.ttf", 16, nullptr, 0);
-        catFont24 = LoadFontEx("assets/Rajdhani-Regular.ttf", 24, nullptr, 0);
-        catFont52 = LoadFontEx("assets/Rajdhani-Regular.ttf", 52, nullptr, 0);
+        catFont = LoadFontEx("assets/Rajdhani-Bold.ttf", 64, nullptr, 0);
+        catFont16 = LoadFontEx("assets/Rajdhani-Bold.ttf", 16, nullptr, 0);
+        catFont24 = LoadFontEx("assets/Rajdhani-Bold.ttf", 24, nullptr, 0);
+        catFont52 = LoadFontEx("assets/Rajdhani-Bold.ttf", 52, nullptr, 0);
         gearIcon  = LoadTexture("assets/gear.png");
     }
 
