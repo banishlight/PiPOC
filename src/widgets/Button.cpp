@@ -1,4 +1,5 @@
 #include <widgets/Button.hpp>
+#include <Assets.hpp>
 
 Button::Button(int x, int y, int width, int height, const std::string& label)
     : _x(x), _y(y), _width(width), _height(height), _label(label) {}
@@ -22,8 +23,8 @@ void Button::draw() {
     if (!_visible) return;
     DrawRectangle(_x, _y, _width, _height, _hovered ? _hoverColor : _bgColor);
     DrawRectangleLines(_x, _y, _width, _height, GRAY);
-    int tw = MeasureText(_label.c_str(), 16);
-    DrawText(_label.c_str(), _x + (_width - tw) / 2, _y + (_height - 16) / 2, 16, _textColor);
+    int tw = (int)MeasureTextEx(Assets::mainFont, _label.c_str(), 16, 1).x;
+    DrawTextEx(Assets::mainFont, _label.c_str(), {(float)(_x + (_width - tw) / 2), (float)(_y + (_height - 16) / 2)}, 16, 1, _textColor);
 }
 
 bool Button::handleEvent(const InputEvent& event) {
