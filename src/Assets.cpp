@@ -7,7 +7,7 @@ namespace Assets {
 
     void load() {
         mainFont = LoadFontEx("assets/roboto.ttf", 64, nullptr, 0);
-        catFont = LoadFontEx("assets/Rajdhani-Regular", 64, nullptr, 0);
+        catFont = LoadFontEx("assets/Rajdhani-Regular.ttf", 64, nullptr, 0);
     }
 
     void unload() {
