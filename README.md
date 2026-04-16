@@ -12,5 +12,6 @@ it will compile the binary into the ```bin/``` directory and copy the files need
 
 
 ## Mentions
-Font Roboto sourced from google fonts [here](https://fonts.google.com/specimen/Roboto?lang=en_Latn&preview.lang=en_Latn)
-Rajdhani font [here](https://fonts.google.com/specimen/Rajdhani?preview.lang=en_Latn)
+-  Font Roboto [here](https://fonts.google.com/specimen/Roboto?lang=en_Latn&preview.lang=en_Latn)
+- Rajdhani font [here](https://fonts.google.com/specimen/Rajdhani?preview.lang=en_Latn)
+- [Gear Icon](https://www.flaticon.com/free-icons/gear)

@@ -10,6 +10,7 @@ DisplayAgent::DisplayAgent() {
     InitWindow(DIS_WIDTH, DIS_HEIGHT, "PiPOC");
     SetTargetFPS(MAX_FPS);
     Assets::load();
+    // ToggleFullscreen();
 }
 
 DisplayAgent::~DisplayAgent() {
