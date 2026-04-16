@@ -53,11 +53,6 @@ void MainView::_fetchEvents() {
                 auto* input = static_cast<InputEvent*>(e.get());
                 switch (input->inputType) {
                     case InputEvent::InputType::TAP:
-                    case InputEvent::InputType::SWIPE_LEFT:
-                    case InputEvent::InputType::SWIPE_RIGHT:
-                    case InputEvent::InputType::SWIPE_UP:
-                    case InputEvent::InputType::SWIPE_DOWN:
-                    case InputEvent::InputType::HOLD:
                         for (auto& w : _widgets) {
                             if (w->handleEvent(*input)) break;
                         }
