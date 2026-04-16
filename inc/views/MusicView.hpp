@@ -26,8 +26,6 @@ class MusicView : public View {
         std::string _artist     = "No artist";
         std::string _deviceName = "Not connected";
         bool        _connected  = false;
-        Font _font;
-        const std::string _fontPath = "assets/roboto.ttf";
 
         // Audio capture
         void captureLoop();

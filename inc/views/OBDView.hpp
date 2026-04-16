@@ -12,6 +12,4 @@ class OBDView : public View {
         void close() override;
     private:
         void fetchEvents();
-        Font _font;
-        const std::string _fontPath = "assets/roboto.ttf";
 };

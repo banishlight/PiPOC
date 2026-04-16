@@ -1,6 +1,7 @@
 #include <views/MusicView.hpp>
 #include <widgets/Button.hpp>
 #include <views/MainView.hpp>
+#include <Assets.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -9,8 +10,6 @@ MusicView::MusicView() {}
 MusicView::~MusicView() {}
 
 void MusicView::start() {
-    _font = LoadFontEx(_fontPath.c_str(), 64, nullptr, 0);
-
     auto backBtn = std::make_unique<Button>(W - 168, H - 52, 160, 36, "BACK");
     backBtn->setOnClick([this]() {
         ViewHandler::getInstance().switchView(std::make_unique<MainView>());
@@ -64,7 +63,6 @@ void MusicView::close() {
         _fftCfg = nullptr;
     }
 
-    UnloadFont(_font);
 }
 
 void MusicView::draw() {
@@ -95,23 +93,20 @@ void MusicView::draw() {
     // Album art placeholder box
     DrawRectangle(20, H - 160, 120, 120, {30, 30, 30, 255});
     DrawRectangleLines(20, H - 160, 120, 120, {60, 60, 60, 255});
-    DrawTextEx(_font, "ART", {52, (float)(H - 108)}, 18, 1, dimText);
+    DrawTextEx(Assets::catFont, "ART", {52, (float)(H - 108)}, 18, 1, dimText);
 
     // Track title and artist
-    DrawTextEx(_font, _title.c_str(),  {160, (float)(H - 150)}, 36, 1, WHITE);
-    DrawTextEx(_font, _artist.c_str(), {160, (float)(H - 106)}, 22, 1, dimText);
+    DrawTextEx(Assets::catFont, _title.c_str(),  {160, (float)(H - 150)}, 36, 1, WHITE);
+    DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(H - 106)}, 22, 1, dimText);
 
-    DrawTextEx(_font, _playing ? "PLAYING" : "PAUSED",
+    DrawTextEx(Assets::catFont, _playing ? "PLAYING" : "PAUSED",
                {160, (float)(H - 72)}, 16, 1, _playing ? barColor : dimText);
-
-    // DrawRectangle(W - 168, H - 52, 160, 36, {40, 40, 40, 255});
-    // DrawTextEx(_font, "BACK", {(float)(W - 140), (float)(H - 40)}, 16, 1, WHITE);
 
     std::string dbg = "BT: " + std::string(_connected ? "connected" : "disconnected");
     dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
-    DrawTextEx(_font, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);
+    DrawTextEx(Assets::catFont, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);
 
-    DrawTextEx(_font, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
+    DrawTextEx(Assets::catFont, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
 
     for (auto& widget : _widgets) {
         widget->draw();

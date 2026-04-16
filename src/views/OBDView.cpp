@@ -1,4 +1,5 @@
 #include <views/OBDView.hpp>
+#include <Assets.hpp>
 #include <raylib.h>
 
 OBDView::OBDView() {}
@@ -6,11 +7,11 @@ OBDView::OBDView() {}
 OBDView::~OBDView() {}
 
 void OBDView::start() {
-    _font = LoadFontEx(_fontPath.c_str(), 64, nullptr, 0);
+    
 }
 
 void OBDView::close() {
-    UnloadFont(_font);
+
 }
 
 void OBDView::draw() {
@@ -42,9 +43,9 @@ void OBDView::draw() {
                         Color bg2, Color lc, Color vc, int valueFontSize) {
         DrawRectangle(x, y, w, h, bg2);
         DrawRectangleLines(x, y, w, h, cellBorder);
-        DrawTextEx(_font, label, {(float)(x + 8), (float)(y + 8)}, 14, 1, lc);
-        int vw = (int)MeasureTextEx(_font, value, (float)valueFontSize, 1).x;
-        DrawTextEx(_font, value, {(float)(x + w - vw - 12), (float)(y + h - valueFontSize - 12)}, (float)valueFontSize, 1, vc);
+        DrawTextEx(Assets::mainFont, label, {(float)(x + 8), (float)(y + 8)}, 14, 1, lc);
+        int vw = (int)MeasureTextEx(Assets::mainFont, value, (float)valueFontSize, 1).x;
+        DrawTextEx(Assets::mainFont, value, {(float)(x + w - vw - 12), (float)(y + h - valueFontSize - 12)}, (float)valueFontSize, 1, vc);
     };
 
     // ----------------------------------------------------------------
@@ -56,7 +57,7 @@ void OBDView::draw() {
     // Top bar
     // ----------------------------------------------------------------
     DrawRectangle(0, 0, W, 36, barColor);
-    DrawTextEx(_font, "OBD LIVE DATA", {(float)(W/2 - 80), 10}, 16, 1, GRAY);
+    DrawTextEx(Assets::mainFont, "OBD LIVE DATA", {(float)(W/2 - 80), 10}, 16, 1, GRAY);
 
     // ----------------------------------------------------------------
     // Layout constants
@@ -102,9 +103,9 @@ void OBDView::draw() {
     DrawRectangleLines(centerX, topY + cellH, centerW, bigH, cellBorder);
     snprintf(buf, sizeof(buf), "%.0f", coolant);
     int bigFontSize = 80;
-    int bw = (int)MeasureTextEx(_font, buf, (float)bigFontSize, 1).x;
-    DrawTextEx(_font, buf, {(float)(centerX + (centerW - bw) / 2), (float)(topY + cellH + (bigH - bigFontSize) / 2)}, (float)bigFontSize, 1, primaryColor);
-    DrawTextEx(_font, "COOLANT", {(float)(centerX + 8), (float)(topY + cellH + 8)}, 13, 1, labelColor);
+    int bw = (int)MeasureTextEx(Assets::mainFont, buf, (float)bigFontSize, 1).x;
+    DrawTextEx(Assets::mainFont, buf, {(float)(centerX + (centerW - bw) / 2), (float)(topY + cellH + (bigH - bigFontSize) / 2)}, (float)bigFontSize, 1, primaryColor);
+    DrawTextEx(Assets::mainFont, "COOLANT", {(float)(centerX + 8), (float)(topY + cellH + 8)}, 13, 1, labelColor);
 
     snprintf(buf, sizeof(buf), "%.0f", oilTemp);
     Color oilBg = (oilTemp > 120.0f) ? warnColor : cellBg;
@@ -137,10 +138,10 @@ void OBDView::draw() {
     DrawRectangle(0, botY, W, H - botY, barColor);
 
     DrawRectangle(8, botY + 8, 160, 36, warnColor);
-    DrawTextEx(_font, "SETTINGS", {28, (float)(botY + 18)}, 16, 1, WHITE);
+    DrawTextEx(Assets::mainFont, "SETTINGS", {28, (float)(botY + 18)}, 16, 1, WHITE);
 
     DrawRectangle(W - 168, botY + 8, 160, 36, {0, 60, 120, 255});
-    DrawTextEx(_font, "MAIN MENU", {(float)(W - 152), (float)(botY + 18)}, 16, 1, WHITE);
+    DrawTextEx(Assets::mainFont, "MAIN MENU", {(float)(W - 152), (float)(botY + 18)}, 16, 1, WHITE);
 }
 
 int OBDView::logic() {

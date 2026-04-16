@@ -1,5 +1,6 @@
 #include <agents/DisplayAgent.hpp>
 #include <ViewHandler.hpp>
+#include <Assets.hpp>
 #include <chrono>
 #include <thread>
 #include <raylib.h>
@@ -8,6 +9,7 @@
 DisplayAgent::DisplayAgent() {
     InitWindow(DIS_WIDTH, DIS_HEIGHT, "PiPOC");
     SetTargetFPS(MAX_FPS);
+    Assets::load();
 }
 
 DisplayAgent::~DisplayAgent() {
@@ -21,6 +23,7 @@ void DisplayAgent::start() {
 
 void DisplayAgent::stop() {
     _running = false;
+    Assets::unload();
 }
 
 void DisplayAgent::handleInput() {
