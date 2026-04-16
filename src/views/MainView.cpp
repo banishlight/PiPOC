@@ -7,9 +7,6 @@
 #include <cstring>
 #include <ctime>
 
-// ============================================================================
-// Layout constants
-// ============================================================================
 static constexpr int   W               = 1024;
 static constexpr int   H               = 600;
 static constexpr int   TOPBAR_H        = 36;
@@ -34,14 +31,12 @@ static constexpr int   BTN_GRID_Y      = (H - BTN_H) / 2 + 40;
 static const char* BTN_LABELS[]    = { "ECU",   "AUDIO",  "MAPS"  };
 static const char* BTN_SUBLABELS[] = { "LIVE DATA", "MEDIA PLAYER", "NAVIGATION" };
 
-// ============================================================================
 MainView::MainView() {}
 MainView::~MainView() {}
 
 void MainView::start() {}
 void MainView::close() {}
 
-// ============================================================================
 int MainView::logic() {
     float dt = GetFrameTime();
     _fetchEvents();
@@ -55,7 +50,6 @@ int MainView::logic() {
     return 0;
 }
 
-// ============================================================================
 void MainView::_fetchEvents() {
     auto events = ViewHandler::getInstance().popViewEvents();
     for (auto& e : events) {
@@ -87,9 +81,8 @@ void MainView::_fetchEvents() {
     }
 }
 
-// ============================================================================
 void MainView::draw() {
-    Font& f = Assets::mainFont;
+    Font& f = Assets::catFont;
 
     // Background
     DrawRectangle(0, 0, W, H, BG);

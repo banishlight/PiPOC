@@ -14,8 +14,6 @@ class MainView : public View {
         void close() override;
     private:
         void _fetchEvents();
-        // void _drawWidgets();
-        // std::vector<std::unique_ptr<Widget>> _widgets;
 
         bool                  _transitioning    = false;
         float                 _transitionTimer  = 0.0f;
