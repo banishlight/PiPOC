@@ -2,6 +2,7 @@
 #include <ViewHandler.hpp>
 #include <widgets/Widget.hpp>
 #include <vector>
+#include <functional>
 
 class MainView : public View {
     public:
@@ -13,6 +14,13 @@ class MainView : public View {
         void close() override;
     private:
         void _fetchEvents();
-        void _drawWidgets();
-        std::vector<std::unique_ptr<Widget>> _widgets;
+        // void _drawWidgets();
+        // std::vector<std::unique_ptr<Widget>> _widgets;
+
+        bool                  _transitioning    = false;
+        float                 _transitionTimer  = 0.0f;
+        int                   _hoveredBtn       = -1;
+        std::function<void()> _pendingSwitch;
+    
+        static constexpr float kTransitionDuration = 0.15f;
 };
