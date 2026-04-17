@@ -1,6 +1,4 @@
 #pragma once
-
-#include <AgentHandler.hpp>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -58,6 +56,22 @@ class BTEvent : public ViewEvent {
         bool        playing = false;
 
         BTEvent() : ViewEvent(Type::BLUETOOTH) {}
+};
+
+class OBDEvent : public ViewEvent {
+    public:
+        enum class OBDType {
+            RPM,
+            CoolantTemp,
+            Speed,
+            ThrottlePos,
+        };
+ 
+        OBDType obdType;
+        float   value = 0.0f;
+ 
+        explicit OBDEvent(OBDType t, float v)
+            : ViewEvent(Type::OBD), obdType(t), value(v) {}
 };
 
 // View — abstract base class for all views
