@@ -12,10 +12,10 @@ static constexpr Color RED_ACCENT = {255, 40,  0,   255};
 static constexpr Color TEXT_DIM   = {80,  80,  80,  255};
 static constexpr Color TEXT_BRIGHT= {220, 220, 220, 255};
 
-MapsView::MapsView() {}
-MapsView::~MapsView() {}
+MapView::MapView() {}
+MapView::~MapView() {}
 
-void MapsView::start() {
+void MapView::start() {
     auto backBtn = std::make_unique<Button>(DISPLAY_W - 168, DISPLAY_H - 52, 160, 36, "BACK");
     backBtn->setOnClick([]() {
         ViewHandler::getInstance().switchView(std::make_unique<MainView>());
@@ -23,16 +23,16 @@ void MapsView::start() {
     _widgets.push_back(std::move(backBtn));
 }
 
-void MapsView::close() {
+void MapView::close() {
     _widgets.clear();
 }
 
-int MapsView::logic() {
+int MapView::logic() {
     _fetchEvents();
     return 0;
 }
 
-void MapsView::_fetchEvents() {
+void MapView::_fetchEvents() {
     auto events = ViewHandler::getInstance().popViewEvents();
     for (auto& e : events) {
         if (e->type != ViewEvent::Type::INPUT) continue;
@@ -44,7 +44,7 @@ void MapsView::_fetchEvents() {
     }
 }
 
-void MapsView::draw() {
+void MapView::draw() {
     DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, BG);
 
     // Corner brackets

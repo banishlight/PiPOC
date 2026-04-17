@@ -2,6 +2,7 @@
 #include <views/OBDView.hpp>
 #include <views/MusicView.hpp>
 #include <views/SettingsView.hpp>
+#include <views/MapView.hpp>
 #include <ViewHandler.hpp>
 #include <Assets.hpp>
 #include <Config.hpp>
@@ -81,7 +82,7 @@ void MainView::_fetchEvents() {
                 switch (i) {
                     case 0: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<OBDView>()); }; break;
                     case 1: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MusicView>()); }; break;
-                    case 2: break;
+                    case 2: _pendingSwitch = []() { ViewHandler::getInstance().switchView(std::make_unique<MapView>()); }; break;
                 }
                 break;
             }

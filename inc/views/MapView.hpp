@@ -4,10 +4,10 @@
 #include <memory>
 #include <vector>
 
-class MapsView : public View {
+class MapView : public View {
 public:
-    MapsView();
-    ~MapsView();
+    MapView();
+    ~MapView();
     void start()  override;
     void close()  override;
     void draw()   override;
