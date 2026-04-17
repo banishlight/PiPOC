@@ -82,7 +82,7 @@ void MainView::_fetchEvents() {
                 switch (i) {
                     case 0: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<OBDView>()); }; break;
                     case 1: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MusicView>()); }; break;
-                    case 2: _pendingSwitch = []() { ViewHandler::getInstance().switchView(std::make_unique<MapView>()); }; break;
+                    case 2: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MapView>()); }; break;
                 }
                 break;
             }
