@@ -1,5 +1,6 @@
 #include <views/OBDView.hpp>
 #include <Assets.hpp>
+#include <Config.hpp>
 #include <raylib.h>
 
 OBDView::OBDView() {}
@@ -15,10 +16,7 @@ void OBDView::close() {
 }
 
 void OBDView::draw() {
-    const int W = 1024;
-    const int H = 600;
-
-    // -- Placeholder data (replace with real OBD values later) --
+    // -- Placeholder data (replace with real OBD values) --
     float rpm         = 3500.0f;
     float coolant     = 87.0f;
     float oilTemp     = 102.0f;
@@ -48,27 +46,21 @@ void OBDView::draw() {
         DrawTextEx(Assets::mainFont, value, {(float)(x + w - vw - 12), (float)(y + h - valueFontSize - 12)}, (float)valueFontSize, 1, vc);
     };
 
-    // ----------------------------------------------------------------
     // Background
-    // ----------------------------------------------------------------
-    DrawRectangle(0, 0, W, H, bg);
+    DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, bg);
 
-    // ----------------------------------------------------------------
     // Top bar
-    // ----------------------------------------------------------------
-    DrawRectangle(0, 0, W, 36, barColor);
-    DrawTextEx(Assets::mainFont, "OBD LIVE DATA", {(float)(W/2 - 80), 10}, 16, 1, GRAY);
+    DrawRectangle(0, 0, DISPLAY_W, 36, barColor);
+    DrawTextEx(Assets::mainFont, "OBD LIVE DATA", {(float)(DISPLAY_W/2 - 80), 10}, 16, 1, GRAY);
 
-    // ----------------------------------------------------------------
     // Layout constants
-    // ----------------------------------------------------------------
     int topY    = 36;
-    int botY    = H - 52;
+    int botY    = DISPLAY_H - 52;
     int gridH   = botY - topY;
 
     int leftW   = 280;
     int centerW = 200;
-    int rightW  = W - leftW - centerW;
+    int rightW  = DISPLAY_W - leftW - centerW;
     int centerX = leftW;
     int rightX  = leftW + centerW;
 
@@ -132,16 +124,14 @@ void OBDView::draw() {
     drawCell(rightX + rCellW, topY + rCellH, rCellW, rCellH,
              "THROTTLE", buf, cellBg, labelColor, valueColor, 36);
 
-    // ----------------------------------------------------------------
     // Bottom bar
-    // ----------------------------------------------------------------
-    DrawRectangle(0, botY, W, H - botY, barColor);
+    DrawRectangle(0, botY, DISPLAY_W, DISPLAY_H - botY, barColor);
 
     DrawRectangle(8, botY + 8, 160, 36, warnColor);
     DrawTextEx(Assets::mainFont, "SETTINGS", {28, (float)(botY + 18)}, 16, 1, WHITE);
 
-    DrawRectangle(W - 168, botY + 8, 160, 36, {0, 60, 120, 255});
-    DrawTextEx(Assets::mainFont, "MAIN MENU", {(float)(W - 152), (float)(botY + 18)}, 16, 1, WHITE);
+    DrawRectangle(DISPLAY_W - 168, botY + 8, 160, 36, {0, 60, 120, 255});
+    DrawTextEx(Assets::mainFont, "MAIN MENU", {(float)(DISPLAY_W - 152), (float)(botY + 18)}, 16, 1, WHITE);
 }
 
 int OBDView::logic() {

@@ -2,6 +2,7 @@
 #include <widgets/Button.hpp>
 #include <views/MainView.hpp>
 #include <Assets.hpp>
+#include <Config.hpp>
 #include <cmath>
 #include <iostream>
 
@@ -10,7 +11,7 @@ MusicView::MusicView() {}
 MusicView::~MusicView() {}
 
 void MusicView::start() {
-    auto backBtn = std::make_unique<Button>(W - 168, H - 52, 160, 36, "BACK");
+    auto backBtn = std::make_unique<Button>(DISPLAY_W - 168, DISPLAY_H - 52, 160, 36, "BACK");
     backBtn->setOnClick([this]() {
         ViewHandler::getInstance().switchView(std::make_unique<MainView>());
     });
@@ -71,16 +72,16 @@ void MusicView::draw() {
     Color dimText   = {120, 120, 120, 255};
     Color debugColor= {80,  80,  80,  255};
 
-    DrawRectangle(0, 0, W, H, bg);
+    DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, bg);
 
     // Visualizer
     const int barCount  = 48;
     const int barW      = 16;
     const int barGap    = 4;
     const int totalBarW = barCount * (barW + barGap);
-    const int barStartX = (W - totalBarW) / 2;
-    const int barBaseY  = (int)(H * 0.62f);
-    const int barMaxH   = (int)(H * 0.55f);
+    const int barStartX = (DISPLAY_W - totalBarW) / 2;
+    const int barBaseY  = (int)(DISPLAY_H * 0.62f);
+    const int barMaxH   = (int)(DISPLAY_H * 0.55f);
 
     for (int i = 0; i < kBarCount; i++) {
         int bh = (int)(_barHeights[i] * barMaxH);
@@ -91,20 +92,20 @@ void MusicView::draw() {
     }
 
     // Album art placeholder box
-    DrawRectangle(20, H - 160, 120, 120, {30, 30, 30, 255});
-    DrawRectangleLines(20, H - 160, 120, 120, {60, 60, 60, 255});
-    DrawTextEx(Assets::catFont, "ART", {52, (float)(H - 108)}, 18, 1, dimText);
+    DrawRectangle(20, DISPLAY_H - 160, 120, 120, {30, 30, 30, 255});
+    DrawRectangleLines(20, DISPLAY_H - 160, 120, 120, {60, 60, 60, 255});
+    DrawTextEx(Assets::catFont, "ART", {52, (float)(DISPLAY_H - 108)}, 18, 1, dimText);
 
     // Track title and artist
-    DrawTextEx(Assets::catFont, _title.c_str(),  {160, (float)(H - 150)}, 36, 1, WHITE);
-    DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(H - 106)}, 22, 1, dimText);
+    DrawTextEx(Assets::catFont, _title.c_str(),  {160, (float)(DISPLAY_H - 150)}, 36, 1, WHITE);
+    DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(DISPLAY_H - 106)}, 22, 1, dimText);
 
     DrawTextEx(Assets::catFont, _playing ? "PLAYING" : "PAUSED",
-               {160, (float)(H - 72)}, 16, 1, _playing ? barColor : dimText);
+               {160, (float)(DISPLAY_H - 72)}, 16, 1, _playing ? barColor : dimText);
 
     std::string dbg = "BT: " + std::string(_connected ? "connected" : "disconnected");
     dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
-    DrawTextEx(Assets::catFont, dbg.c_str(), {8, (float)(H - 20)}, 12, 1, debugColor);
+    DrawTextEx(Assets::catFont, dbg.c_str(), {8, (float)(DISPLAY_H - 20)}, 12, 1, debugColor);
 
     DrawTextEx(Assets::catFont, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
 

@@ -49,7 +49,4 @@ class MusicView : public View {
 
         static constexpr float kSmoothingFactor = 6.0f;
         static constexpr float kDecayFactor     = 3.0f;
-
-        static constexpr int W = 1024;
-        static constexpr int H = 600;
     };
