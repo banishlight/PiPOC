@@ -229,13 +229,13 @@ void OBDView::draw() {
     DrawTextEx(Assets::catFont16, "REVS / MIN",
                {(float)(col0X + PAD), (float)(row0Y + heroH - 22)}, 10, 1, C_UNIT);
     // Bar
-    float rpmPct = _rpm.has_value() ? clamp01(_rpm.value() / 8500.0f) : 0.0f;
+    float rpmPct = _rpm.has_value() ? clamp01(_rpm.value() / BAR_RPM_MAX) : 0.0f;
     DrawRectangle(col0X, row0Y + heroH - BAR_H, col0W, BAR_H, C_BORDER);
     DrawRectangle(col0X, row0Y + heroH - BAR_H, (int)(rpmPct * col0W), BAR_H, C_YELLOW_BAR);
 
     // ---- COOLANT — hero, spans rows 0+1, col 1 ----
     fmtVal(buf, sizeof(buf), _coolant, "%.0f");
-    bool coolantWarn = _coolant.has_value() && _coolant.value() > 105.0f;
+    bool coolantWarn = _coolant.has_value() && _coolant.value() > WARN_COOLANT_C;
     Color coolantBg  = coolantWarn ? C_BG_WARN : C_BG_COOLANT;
     Color coolantBar = coolantWarn ? C_RED_BAR : C_GREEN_BAR;
     DrawRectangle(col1X, row0Y, col1W, heroH, coolantBg);
@@ -248,7 +248,7 @@ void OBDView::draw() {
                coolFont, 1, C_YELLOW);
     DrawTextEx(Assets::catFont16, "DEGREES C",
                {(float)(col1X + PAD), (float)(row0Y + heroH - 22)}, 10, 1, C_UNIT);
-    float coolPct = _coolant.has_value() ? clamp01(_coolant.value() / 120.0f) : 0.0f;
+    float coolPct = _coolant.has_value() ? clamp01(_coolant.value() / BAR_COOLANT_MAX) : 0.0f;
     DrawRectangle(col1X, row0Y + heroH - BAR_H, col1W, BAR_H, C_BORDER);
     DrawRectangle(col1X, row0Y + heroH - BAR_H, (int)(coolPct * col1W), BAR_H, coolantBar);
 
@@ -262,7 +262,7 @@ void OBDView::draw() {
                {(float)(col2X + PAD), (float)(row0Y + (rowH - 28) / 2)}, 28, 1, C_VALUE);
     DrawTextEx(Assets::catFont16, "KM/H",
                {(float)(col2X + PAD), (float)(row0Y + rowH - 22)}, 10, 1, C_UNIT);
-    float speedPct = _speed.has_value() ? clamp01(_speed.value() / 120.0f) : 0.0f;
+    float speedPct = _speed.has_value() ? clamp01(_speed.value() / BAR_SPEED_MAX) : 0.0f;
     DrawRectangle(col2X, row0Y + rowH - BAR_H, col2W, BAR_H, C_BORDER);
     DrawRectangle(col2X, row0Y + rowH - BAR_H, (int)(speedPct * col2W), BAR_H, C_GREEN_BAR);
 
@@ -276,7 +276,7 @@ void OBDView::draw() {
                {(float)(col3X + PAD), (float)(row0Y + (rowH - 28) / 2)}, 28, 1, C_VALUE);
     DrawTextEx(Assets::catFont16, "PERCENT",
                {(float)(col3X + PAD), (float)(row0Y + rowH - 22)}, 10, 1, C_UNIT);
-    float thrPct = _throttle.has_value() ? clamp01(_throttle.value() / 100.0f) : 0.0f;
+    float thrPct = _throttle.has_value() ? clamp01(_throttle.value() / BAR_THROTTLE_MAX) : 0.0f;
     DrawRectangle(col3X, row0Y + rowH - BAR_H, col3W, BAR_H, C_BORDER);
     DrawRectangle(col3X, row0Y + rowH - BAR_H, (int)(thrPct * col3W), BAR_H, C_GREEN_BAR);
 
@@ -289,7 +289,7 @@ void OBDView::draw() {
                {(float)(col2X + PAD), (float)(row1Y + (rowH - 28) / 2)}, 28, 1, C_VALUE);
     DrawTextEx(Assets::catFont16, "G/SEC",
                {(float)(col2X + PAD), (float)(row1Y + rowH - 22)}, 10, 1, C_UNIT);
-    float mafPct = _maf.has_value() ? clamp01(_maf.value() / 20.0f) : 0.0f;
+    float mafPct = _maf.has_value() ? clamp01(_maf.value() / BAR_MAF_MAX) : 0.0f;
     DrawRectangle(col2X, row1Y + rowH - BAR_H, col2W, BAR_H, C_BORDER);
     DrawRectangle(col2X, row1Y + rowH - BAR_H, (int)(mafPct * col2W), BAR_H, C_GREEN_BAR);
 
@@ -305,7 +305,7 @@ void OBDView::draw() {
 
     // ---- OIL TEMP — row 2, col 0 ----
     fmtVal(buf, sizeof(buf), _oilTemp, "%.0f");
-    bool oilWarn   = _oilTemp.has_value() && _oilTemp.value() > 120.0f;
+    bool oilWarn   = _oilTemp.has_value() && _oilTemp.value() > WARN_OIL_C;
     Color oilValue = oilWarn ? C_RED_ACCENT : C_VALUE;
     DrawRectangle(col0X, row2Y, col0W, rowH, C_BG_CELL);
     DrawTextEx(Assets::catFont16, "OIL TEMP",
@@ -314,7 +314,7 @@ void OBDView::draw() {
                {(float)(col0X + PAD), (float)(row2Y + (rowH - 28) / 2)}, 28, 1, oilValue);
     DrawTextEx(Assets::catFont16, "DEGREES C",
                {(float)(col0X + PAD), (float)(row2Y + rowH - 22)}, 10, 1, C_UNIT);
-    float oilPct = _oilTemp.has_value() ? clamp01(_oilTemp.value() / 130.0f) : 0.0f;
+    float oilPct = _oilTemp.has_value() ? clamp01(_oilTemp.value() / BAR_OIL_MAX) : 0.0f;
     DrawRectangle(col0X, row2Y + rowH - BAR_H, col0W, BAR_H, C_BORDER);
     DrawRectangle(col0X, row2Y + rowH - BAR_H, (int)(oilPct * col0W), BAR_H, C_YELLOW_BAR);
 
