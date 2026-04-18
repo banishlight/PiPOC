@@ -76,6 +76,10 @@ int MainView::logic() {
             return 0; // view has switched, don't touch anything else
         }
     }
+    if (_settingsButton->pollCompleted()) {
+        _settingsButton->fireOnClick();
+        return 0;
+    }
 
     return 0;
 }
@@ -179,6 +183,4 @@ void MainView::draw() {
                {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)},
                16, 2, {34, 34, 34, 255});
 
-    // Gear icon
-    DrawTexture(Assets::gearIcon, GEAR_X, GEAR_Y, TEXT_DIM);
 }

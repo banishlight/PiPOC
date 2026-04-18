@@ -137,7 +137,7 @@ bool Button::handleEvent(const InputEvent& event) {
         if (containsPoint(event.x, event.y)) {
             if (_image.has_value() || _animStyle == AnimationStyle::None) {
                 // Image buttons and None-style buttons fire immediately
-                if (_onClick) _onClick();
+                _completed = true;
             } else {
                 _animating = true;
                 _animTimer = 0.0f;
