@@ -28,7 +28,6 @@ static constexpr int   BTN_GRID_W      = BTN_COUNT * BTN_W + (BTN_COUNT - 1) * B
 static constexpr int   BTN_GRID_X      = (DISPLAY_W - BTN_GRID_W) / 2;
 static constexpr int   BTN_GRID_Y      = (DISPLAY_H - BTN_H) / 2 + 40;
 
-// Settings gear button in bottom bar
 static constexpr int   GEAR_X          = DISPLAY_W - 40;
 static constexpr int   GEAR_Y          = DISPLAY_H - BOTBAR_H + 8;
 static constexpr int   GEAR_SIZE       = 24;
@@ -58,34 +57,56 @@ int MainView::logic() {
 void MainView::_fetchEvents() {
     auto events = ViewHandler::getInstance().popViewEvents();
     for (auto& e : events) {
-        if (e->type != ViewEvent::Type::INPUT) continue;
-        auto* input = static_cast<InputEvent*>(e.get());
-        if (input->inputType != InputEvent::InputType::TAP) continue;
-        if (_transitioning) continue;
-
-        // Check gear/settings button
-        if (CheckCollisionPointRec({input->x, input->y},
-            {(float)GEAR_X, (float)GEAR_Y, (float)GEAR_SIZE, (float)GEAR_SIZE})) {
-            ViewHandler::getInstance().switchView(std::make_unique<SettingsView>());
-            return;
-        }
-
-        // Check nav buttons
-        for (int i = 0; i < BTN_COUNT; i++) {
-            int bx = BTN_GRID_X + i * (BTN_W + BTN_GAP);
-            if (CheckCollisionPointRec({input->x, input->y},
-                {(float)bx, (float)BTN_GRID_Y, (float)BTN_W, (float)BTN_H})) {
-                _hoveredBtn      = i;
-                _transitioning   = true;
-                _transitionTimer = 0.0f;
-
-                switch (i) {
-                    case 0: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<OBDView>()); }; break;
-                    case 1: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MusicView>()); }; break;
-                    case 2: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MapView>()); }; break;
+        switch (e->type) {
+            case ViewEvent::Type::BLUETOOTH: {
+                auto* bt = static_cast<BTEvent*>(e.get());
+                switch (bt->btType) {
+                    case BTEvent::BTType::DeviceConnected:
+                        ViewHandler::getInstance().setConnectedDevice(bt->deviceName);
+                        break;
+                    case BTEvent::BTType::DeviceDisconnected:
+                        ViewHandler::getInstance().clearConnectedDevice();
+                        break;
+                    default:
+                        break;
                 }
                 break;
             }
+
+            case ViewEvent::Type::INPUT: {
+                auto* input = static_cast<InputEvent*>(e.get());
+                if (input->inputType != InputEvent::InputType::TAP) break;
+                if (_transitioning) break;
+
+                // Check gear/settings button
+                if (CheckCollisionPointRec({input->x, input->y},
+                    {(float)GEAR_X, (float)GEAR_Y, (float)GEAR_SIZE, (float)GEAR_SIZE})) {
+                    ViewHandler::getInstance().switchView(std::make_unique<SettingsView>());
+                    return;
+                }
+
+                // Check nav buttons
+                for (int i = 0; i < BTN_COUNT; i++) {
+                    int bx = BTN_GRID_X + i * (BTN_W + BTN_GAP);
+                    if (CheckCollisionPointRec({input->x, input->y},
+                        {(float)bx, (float)BTN_GRID_Y, (float)BTN_W, (float)BTN_H})) {
+                        _hoveredBtn      = i;
+                        _transitioning   = true;
+                        _transitionTimer = 0.0f;
+
+                        switch (i) {
+                            case 0: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<OBDView>()); }; break;
+                            case 1: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MusicView>()); }; break;
+                            case 2: _pendingSwitch = [](){ ViewHandler::getInstance().switchView(std::make_unique<MapView>()); }; break;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+
+            default:
+                break;
         }
     }
 }
@@ -116,7 +137,10 @@ void MainView::draw() {
     int cw = (int)MeasureTextEx(Assets::catFont16, clockBuf, 16, 1).x;
     DrawTextEx(Assets::catFont16, clockBuf, {(float)(DISPLAY_W - cw - 16), 10}, 16, 1, TEXT_DIM);
     DrawRectangle(DISPLAY_W - cw - 32, 8, 1, 20, BORDER);
-    DrawTextEx(Assets::catFont16, "BT  CONNECTED", {(float)(DISPLAY_W - cw - 148), 10}, 16, 2, TEXT_DIM);
+
+    // BT status — reads from ViewHandler
+    const char* btLabel = ViewHandler::getInstance().isDeviceConnected() ? "BT  CONNECTED" : "BT  DISCONNECTED";
+    DrawTextEx(Assets::catFont16, btLabel, {(float)(DISPLAY_W - cw - 148), 10}, 16, 2, TEXT_DIM);
     DrawRectangle(DISPLAY_W - cw - 164, 8, 1, 20, BORDER);
     DrawTextEx(Assets::catFont16, "ECU  ONLINE", {(float)(DISPLAY_W - cw - 268), 10}, 16, 2, TEXT_DIM);
 
@@ -166,14 +190,18 @@ void MainView::draw() {
     DrawRectangle(0, DISPLAY_H - BOTBAR_H, DISPLAY_W, BOTBAR_H, BG2);
     DrawRectangle(0, DISPLAY_H - BOTBAR_H, DISPLAY_W, 1, BORDER);
 
-    // BT dot + device name
+    // BT dot + device name from ViewHandler
     DrawCircle(22, DISPLAY_H - BOTBAR_H + 20, 3, RED_ACCENT);
-    DrawTextEx(Assets::catFont16, "CUBA'S IPHONE", {34, (float)(DISPLAY_H - BOTBAR_H + 11)}, 16, 2, TEXT_DIM);
+    DrawTextEx(Assets::catFont16,
+               ViewHandler::getInstance().getConnectedDevice().c_str(),
+               {34, (float)(DISPLAY_H - BOTBAR_H + 11)}, 16, 2, TEXT_DIM);
 
     // Version
     const char* ver = "v0.1.0  PIPOC";
     int vw = (int)MeasureTextEx(Assets::catFont16, ver, 16, 2).x;
-    DrawTextEx(Assets::catFont16, ver, {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)}, 16, 2, {34, 34, 34, 255});
+    DrawTextEx(Assets::catFont16, ver,
+               {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)},
+               16, 2, {34, 34, 34, 255});
 
     // Gear icon
     DrawTexture(Assets::gearIcon, GEAR_X, GEAR_Y, TEXT_DIM);
