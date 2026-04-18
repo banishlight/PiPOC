@@ -12,7 +12,7 @@
 static constexpr float FONT_16 = 16.0f;
 static constexpr float FONT_24 = 24.0f;
 static constexpr float FONT_52 = 52.0f;
-
+static constexpr float FONT_88 = 52.0f;
 // Colours
 static constexpr Color C_BG         = {10,  10,  10,  255};
 static constexpr Color C_BG2        = {15,  15,  15,  255};
@@ -207,9 +207,9 @@ void OBDView::draw() {
     DrawRectangle(col0X, row0Y, col0W, 2, C_RED_ACCENT);
     DrawTextEx(Assets::catFont16, "RPM",
                {(float)(col0X + PAD), (float)(row0Y + PAD)}, FONT_16, 1, C_LABEL);
-    DrawTextEx(Assets::catFont52, buf,
-               {(float)(col0X + PAD), (float)(row0Y + (heroH - (int)FONT_52) / 2)},
-               FONT_52, 1, C_YELLOW);
+    DrawTextEx(Assets::catFont88, buf,
+               {(float)(col0X + PAD), (float)(row0Y + (heroH - (int)FONT_88) / 2)},
+               FONT_88, 1, C_YELLOW);
     DrawTextEx(Assets::catFont16, "REVS / MIN",
                {(float)(col0X + PAD), (float)(row0Y + heroH - (int)FONT_16 - PAD)},
                FONT_16, 1, C_UNIT);
@@ -226,9 +226,9 @@ void OBDView::draw() {
     DrawRectangle(col1X, row0Y, col1W, 2, C_RED_ACCENT);
     DrawTextEx(Assets::catFont16, "COOLANT",
                {(float)(col1X + PAD), (float)(row0Y + PAD)}, FONT_16, 1, C_LABEL);
-    DrawTextEx(Assets::catFont52, buf,
-               {(float)(col1X + PAD), (float)(row0Y + (heroH - (int)FONT_52) / 2)},
-               FONT_52, 1, C_YELLOW);
+    DrawTextEx(Assets::catFont88, buf,
+               {(float)(col1X + PAD), (float)(row0Y + (heroH - (int)FONT_88) / 2)},
+               FONT_88, 1, C_YELLOW);
     DrawTextEx(Assets::catFont16, "DEGREES C",
                {(float)(col1X + PAD), (float)(row0Y + heroH - (int)FONT_16 - PAD)},
                FONT_16, 1, C_UNIT);
