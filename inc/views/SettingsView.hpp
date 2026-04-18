@@ -16,4 +16,6 @@ public:
 private:
     void _fetchEvents();
     std::vector<std::unique_ptr<Button>> _widgets;
+    // Held separately so we can poll it for deferred switch
+    Button* _backBtn = nullptr;
 };

@@ -16,38 +16,68 @@ SettingsView::SettingsView() {}
 SettingsView::~SettingsView() {}
 
 void SettingsView::start() {
-    // Toggle fullscreen
+    // Fullscreen toggle 
     auto fsBtn = std::make_unique<Button>(412, 260, 200, 52, "FULLSCREEN");
     fsBtn->setOnClick([]() {
         ToggleFullscreen();
     });
+    fsBtn->setAnimationStyle(Button::AnimationStyle::None);
     _widgets.push_back(std::move(fsBtn));
 
-    // Back to main menu
+    // Back button
     auto backBtn = std::make_unique<Button>(412, 320, 200, 52, "BACK");
     backBtn->setOnClick([]() {
         ViewHandler::getInstance().switchView(std::make_unique<MainView>());
     });
+    backBtn->setAnimationStyle(Button::AnimationStyle::SweepFill, 0.15f);
+    _backBtn = backBtn.get();
     _widgets.push_back(std::move(backBtn));
 }
 
 void SettingsView::close() {
+    _backBtn = nullptr;
     _widgets.clear();
 }
 
 int SettingsView::logic() {
     _fetchEvents();
+    // Poll back button safely outside the event loop
+    if (_backBtn && _backBtn->pollCompleted()) {
+        _backBtn->fireOnClick();
+        return 0;
+    }
+
     return 0;
 }
 
 void SettingsView::_fetchEvents() {
     auto events = ViewHandler::getInstance().popViewEvents();
     for (auto& e : events) {
-        if (e->type != ViewEvent::Type::INPUT) continue;
-        auto* input = static_cast<InputEvent*>(e.get());
-        if (input->inputType != InputEvent::InputType::TAP) continue;
-        for (auto& w : _widgets) {
-            if (w->handleEvent(*input)) break;
+        switch (e->type) {
+            case ViewEvent::Type::BLUETOOTH: {
+                auto* bt = static_cast<BTEvent*>(e.get());
+                switch (bt->btType) {
+                    case BTEvent::BTType::DeviceConnected:
+                        ViewHandler::getInstance().setConnectedDevice(bt->deviceName);
+                        break;
+                    case BTEvent::BTType::DeviceDisconnected:
+                        ViewHandler::getInstance().clearConnectedDevice();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+            case ViewEvent::Type::INPUT: {
+                auto* input = static_cast<InputEvent*>(e.get());
+                if (input->inputType != InputEvent::InputType::TAP) break;
+                for (auto& w : _widgets) {
+                    if (w->handleEvent(*input)) break;
+                }
+                break;
+            }
+            default:
+                break;
         }
     }
 }
