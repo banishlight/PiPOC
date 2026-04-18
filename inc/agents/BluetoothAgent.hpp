@@ -1,5 +1,4 @@
 #pragma once
-
 #include <ViewHandler.hpp>
 #include <atomic>
 #include <string>

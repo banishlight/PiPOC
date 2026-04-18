@@ -24,8 +24,6 @@ void BluetoothAgent::run(std::stop_token stopToken) {
         return;
     }
 
-    // Startup check — if a device was already connected before the software
-    // started, push a DeviceConnected event so views reflect the correct state
     if (findLastPairedDevice() && !_devicePath.empty()) {
         if (connectDevice(_devicePath)) {
             _connected = true;
