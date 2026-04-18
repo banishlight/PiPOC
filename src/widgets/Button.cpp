@@ -36,10 +36,22 @@ void Button::updateAnimation() {
     _animTimer += GetFrameTime();
 
     if (_animTimer >= _animDuration) {
-        _animTimer  = 0.0f;
-        _animating  = false;
-        if (_onClick) _onClick();
+        _animTimer = 0.0f;
+        _animating = false;
+        _completed = true; // signal completion — caller polls this
     }
+}
+
+bool Button::pollCompleted() {
+    if (_completed) {
+        _completed = false;
+        return true;
+    }
+    return false;
+}
+
+void Button::fireOnClick() {
+    if (_onClick) _onClick();
 }
 
 void Button::draw() {
@@ -49,18 +61,15 @@ void Button::draw() {
 
     switch (_animStyle) {
         case AnimationStyle::SweepFill: {
-            // Base background
             DrawRectangle(_x, _y, _width, _height, _bgColor);
 
-            // Sweep fill — progresses left to right during animation
             if (_animating) {
-                float t      = _animTimer / _animDuration;
-                t            = t > 1.0f ? 1.0f : t;
-                int fillW    = (int)(_width * t);
+                float t   = _animTimer / _animDuration;
+                t         = t > 1.0f ? 1.0f : t;
+                int fillW = (int)(_width * t);
                 DrawRectangle(_x, _y, fillW, _height, _fillColor);
             }
 
-            // Top accent line — fill colour when animating, border otherwise
             Color topLine = _animating ? _fillColor : GRAY;
             DrawRectangle(_x, _y, _width, 2, topLine);
             DrawRectangleLines(_x, _y, _width, _height, GRAY);
@@ -74,7 +83,7 @@ void Button::draw() {
             break;
     }
 
-    // Main label — centred horizontally, positioned in upper portion if sublabel present
+    // Main label
     int labelY = _sublabel.has_value()
         ? _y + (_height / 2) - 20
         : _y + (_height - 24) / 2;
@@ -101,6 +110,7 @@ bool Button::handleEvent(const InputEvent& event) {
     if (event.inputType == InputEvent::InputType::TAP) {
         if (containsPoint(event.x, event.y)) {
             if (_animStyle == AnimationStyle::None) {
+                // No animation — fire immediately since no view switch is involved
                 if (_onClick) _onClick();
             } else {
                 _animating = true;

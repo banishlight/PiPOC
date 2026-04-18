@@ -8,7 +8,7 @@ class Button : public Widget {
 public:
     enum class AnimationStyle {
         None,       // fires onClick immediately on tap
-        SweepFill,  // red fill sweeps left to right, onClick fires on completion
+        SweepFill,  // fill sweeps left to right, onClick fires after completion
     };
 
     Button(int x, int y, int width, int height, const std::string& label);
@@ -25,6 +25,13 @@ public:
 
     bool isAnimating() const { return _animating; }
 
+    // Returns true once after the animation completes. Resets the flag.
+    // Call this each frame after event processing to safely fire deferred actions.
+    bool pollCompleted();
+
+    // Fires the onClick callback. Call after pollCompleted() returns true.
+    void fireOnClick();
+
 private:
     bool containsPoint(float x, float y) const;
     void updateAnimation();
@@ -40,8 +47,9 @@ private:
     Color _fillColor  = {255, 40,  0,   255};
     Color _textColor  = WHITE;
 
-    AnimationStyle _animStyle   = AnimationStyle::None;
+    AnimationStyle _animStyle    = AnimationStyle::None;
     float          _animDuration = 0.15f;
     float          _animTimer    = 0.0f;
     bool           _animating    = false;
+    bool           _completed    = false;
 };

@@ -42,7 +42,6 @@ void MainView::start() {}
 void MainView::close() {}
 
 void MainView::_initButtons() {
-    // Nav buttons — ECU, AUDIO, MAPS
     struct NavDef { const char* label; const char* sublabel; std::function<void()> action; };
     NavDef defs[BTN_COUNT] = {
         { "ECU",   "LIVE DATA",    [](){ ViewHandler::getInstance().switchView(std::make_unique<OBDView>()); } },
@@ -51,7 +50,7 @@ void MainView::_initButtons() {
     };
 
     for (int i = 0; i < BTN_COUNT; i++) {
-        int bx = BTN_GRID_X + i * (BTN_W + BTN_GAP);
+        int bx  = BTN_GRID_X + i * (BTN_W + BTN_GAP);
         auto btn = std::make_unique<Button>(bx, BTN_GRID_Y, BTN_W, BTN_H, defs[i].label);
         btn->setSublabel(defs[i].sublabel);
         btn->setOnClick(defs[i].action);
@@ -60,7 +59,8 @@ void MainView::_initButtons() {
         _navButtons.push_back(std::move(btn));
     }
 
-    // Settings/gear button — no animation, just fires immediately
+    // Settings button — no animation, fires immediately (no view switch risk here
+    // since SettingsView switch happens via onClick directly on AnimationStyle::None)
     _settingsButton = std::make_unique<Button>(GEAR_X, GEAR_Y, GEAR_SIZE, GEAR_SIZE, "");
     _settingsButton->setOnClick([](){ ViewHandler::getInstance().switchView(std::make_unique<SettingsView>()); });
     _settingsButton->setAnimationStyle(Button::AnimationStyle::None);
@@ -68,6 +68,16 @@ void MainView::_initButtons() {
 
 int MainView::logic() {
     _fetchEvents();
+
+    // Poll nav buttons for completed animations and fire their deferred actions
+    // safely outside the event loop — prevents destroying 'this' mid-call
+    for (auto& btn : _navButtons) {
+        if (btn->pollCompleted()) {
+            btn->fireOnClick();
+            return 0; // view has switched, don't touch anything else
+        }
+    }
+
     return 0;
 }
 
@@ -75,7 +85,6 @@ void MainView::_fetchEvents() {
     auto events = ViewHandler::getInstance().popViewEvents();
     for (auto& e : events) {
         switch (e->type) {
-
             case ViewEvent::Type::BLUETOOTH: {
                 auto* bt = static_cast<BTEvent*>(e.get());
                 switch (bt->btType) {
@@ -90,15 +99,12 @@ void MainView::_fetchEvents() {
                 }
                 break;
             }
-
             case ViewEvent::Type::INPUT: {
                 auto* input = static_cast<InputEvent*>(e.get());
                 if (input->inputType != InputEvent::InputType::TAP) break;
 
-                // Settings button
                 if (_settingsButton->handleEvent(*input)) return;
 
-                // Nav buttons
                 for (auto& btn : _navButtons) {
                     if (btn->handleEvent(*input)) break;
                 }
@@ -139,7 +145,8 @@ void MainView::draw() {
     DrawRectangle(DISPLAY_W - cw - 32, 8, 1, 20, BORDER);
 
     // BT status
-    const char* btLabel = ViewHandler::getInstance().isDeviceConnected() ? "BT  CONNECTED" : "BT  DISCONNECTED";
+    const char* btLabel = ViewHandler::getInstance().isDeviceConnected()
+        ? "BT  CONNECTED" : "BT  DISCONNECTED";
     DrawTextEx(Assets::catFont16, btLabel, {(float)(DISPLAY_W - cw - 148), 10}, 16, 2, TEXT_DIM);
     DrawRectangle(DISPLAY_W - cw - 164, 8, 1, 20, BORDER);
     DrawTextEx(Assets::catFont16, "ECU  ONLINE", {(float)(DISPLAY_W - cw - 268), 10}, 16, 2, TEXT_DIM);
@@ -173,6 +180,6 @@ void MainView::draw() {
                {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)},
                16, 2, {34, 34, 34, 255});
 
-    // Gear icon — drawn on top of the invisible settings button
+    // Gear icon
     DrawTexture(Assets::gearIcon, GEAR_X, GEAR_Y, TEXT_DIM);
 }
