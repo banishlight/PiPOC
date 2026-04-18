@@ -101,6 +101,12 @@ class ViewHandler {
         void updateView();
         void drawView();
 
+        // Cross view data
+        void setConnectedDevice( std::string name);
+        const std::string& getConnectedDevice() const;
+        bool isDeviceConnected() const;
+        void clearConnectedDevice();
+
     private:
         ViewHandler();
         ~ViewHandler();
@@ -112,4 +118,7 @@ class ViewHandler {
 
         std::vector<std::unique_ptr<ViewEvent>> _eventQueue;
         std::mutex            _eventMutex;
+
+        std::string           _deviceName = "Not Connected";
+        bool                  _isBTConnect = false;
 };

@@ -46,3 +46,21 @@ void ViewHandler::drawView() {
     if (!_activeView) return;
     _activeView->draw();
 }
+
+void ViewHandler::setConnectedDevice(std::string name) {
+    _isBTConnect = true;
+    _deviceName = name;
+}
+
+const std::string& ViewHandler::getConnectedDevice() const {
+    return _deviceName;
+}
+
+bool ViewHandler::isDeviceConnected() const {
+    return _isBTConnect;
+}
+
+void ViewHandler::clearConnectedDevice() {
+    _deviceName = "Not Connected";
+    _isBTConnect = false;
+}
