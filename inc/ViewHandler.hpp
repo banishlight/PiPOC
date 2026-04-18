@@ -65,6 +65,9 @@ class OBDEvent : public ViewEvent {
             CoolantTemp,
             Speed,
             ThrottlePos,
+            OilTemp,
+            IntakeTemp,
+            MAF,
         };
  
         OBDType obdType;

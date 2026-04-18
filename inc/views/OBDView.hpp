@@ -14,9 +14,24 @@ class OBDView : public View {
     private:
         void fetchEvents();
  
-        // OBD data — negative means no data received yet
+        // Main cells
         std::optional<float> _rpm;
         std::optional<float> _coolant;
+ 
+        // Secondary cells
         std::optional<float> _speed;
         std::optional<float> _throttle;
+        std::optional<float> _oilTemp;
+        std::optional<float> _intakeTemp;
+        std::optional<float> _maf;
+        std::optional<float> _voltage;
+ 
+        // Drawing helpers
+        void drawCell(int x, int y, int w, int h,
+                      const char* label, const char* value, const char* unit,
+                      Color bg, Color labelCol, Color valueCol,
+                      float barPct, Color barCol, bool hasBar) const;
+ 
+        void drawTopBar() const;
+        void drawBottomBar() const;
 };
