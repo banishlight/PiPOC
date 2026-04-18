@@ -23,7 +23,16 @@ void BluetoothAgent::run(std::stop_token stopToken) {
         std::cerr << "[BT] Failed to connect to D-Bus\n";
         return;
     }
-    
+
+    // Startup check — if a device was already connected before the software
+    // started, push a DeviceConnected event so views reflect the correct state
+    if (findLastPairedDevice() && !_devicePath.empty()) {
+        if (connectDevice(_devicePath)) {
+            _connected = true;
+            pushConnectionEvent(BTEvent::BTType::DeviceConnected, _deviceName);
+        }
+    }
+
     while (!stopToken.stop_requested()) {
         if (_devicePath.empty() || _playerPath.empty()) {
             if (findLastPairedDevice()) {
