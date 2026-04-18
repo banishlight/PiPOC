@@ -7,12 +7,11 @@
 #include <iostream>
 
 MusicView::MusicView() {}
-
 MusicView::~MusicView() {}
 
 void MusicView::start() {
     auto backBtn = std::make_unique<Button>(DISPLAY_W - 168, DISPLAY_H - 52, 160, 36, "BACK");
-    backBtn->setOnClick([this]() {
+    backBtn->setOnClick([]() {
         ViewHandler::getInstance().switchView(std::make_unique<MainView>());
     });
     _widgets.push_back(std::move(backBtn));
@@ -25,25 +24,21 @@ void MusicView::start() {
 
     int error;
     _pulse = pa_simple_new(
-        nullptr,                    // default server
-        "PiPOC",                    // app name
+        nullptr,
+        "PiPOC",
         PA_STREAM_RECORD,
-        "alsa_output.platform-bcm2835_audio.analog-stereo.monitor",  // Pi monitor source
-        "visualizer",               // stream name
+        "alsa_output.platform-bcm2835_audio.analog-stereo.monitor",
+        "visualizer",
         &spec,
-        nullptr,                    // default channel map
-        nullptr,                    // default buffering
+        nullptr,
+        nullptr,
         &error
     );
 
-    if (!_pulse) {
+    if (!_pulse)
         std::cerr << "[VIS] PulseAudio error: " << pa_strerror(error) << "\n";
-    }
 
-    // Init KissFFT
-    _fftCfg = kiss_fftr_alloc(kBufferSize, 0, nullptr, nullptr);
-
-    // Start capture thread
+    _fftCfg    = kiss_fftr_alloc(kBufferSize, 0, nullptr, nullptr);
     _capturing = true;
     _captureThread = std::jthread([this](std::stop_token st) { captureLoop(); });
 }
@@ -51,8 +46,6 @@ void MusicView::start() {
 void MusicView::close() {
     _capturing = false;
     _captureThread.request_stop();
-
-    // Wait for capture thread to finish before freeing pulse
     if (_captureThread.joinable()) _captureThread.join();
 
     if (_pulse) {
@@ -64,54 +57,52 @@ void MusicView::close() {
         _fftCfg = nullptr;
     }
 
+    _widgets.clear();
 }
 
 void MusicView::draw() {
-    Color bg        = {10,  10,  10,  255};
-    Color barColor  = {39,  174, 96,  255};  // green placeholder
-    Color dimText   = {120, 120, 120, 255};
-    Color debugColor= {80,  80,  80,  255};
+    Color bg       = {10,  10,  10,  255};
+    Color barColor = {39,  174, 96,  255};
+    Color dimText  = {120, 120, 120, 255};
+    Color debugCol = {80,  80,  80,  255};
 
     DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, bg);
 
-    // Visualizer
-    const int barCount  = 48;
+    // Visualizer bars
     const int barW      = 16;
     const int barGap    = 4;
-    const int totalBarW = barCount * (barW + barGap);
+    const int totalBarW = kBarCount * (barW + barGap);
     const int barStartX = (DISPLAY_W - totalBarW) / 2;
     const int barBaseY  = (int)(DISPLAY_H * 0.62f);
     const int barMaxH   = (int)(DISPLAY_H * 0.55f);
 
     for (int i = 0; i < kBarCount; i++) {
-        int bh = (int)(_barHeights[i] * barMaxH);
-        bh = std::max(2, bh);  // minimum bar height so they're always visible
+        int bh = std::max(2, (int)(_barHeights[i] * barMaxH));
         int bx = barStartX + i * (barW + barGap);
-        int by = barBaseY - bh;
-        DrawRectangle(bx, by, barW, bh, barColor);
+        DrawRectangle(bx, barBaseY - bh, barW, bh, barColor);
     }
 
-    // Album art placeholder box
+    // Album art placeholder
     DrawRectangle(20, DISPLAY_H - 160, 120, 120, {30, 30, 30, 255});
     DrawRectangleLines(20, DISPLAY_H - 160, 120, 120, {60, 60, 60, 255});
     DrawTextEx(Assets::catFont, "ART", {52, (float)(DISPLAY_H - 108)}, 18, 1, dimText);
 
-    // Track title and artist
+    // Track info
     DrawTextEx(Assets::catFont, _title.c_str(),  {160, (float)(DISPLAY_H - 150)}, 36, 1, WHITE);
     DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(DISPLAY_H - 106)}, 22, 1, dimText);
-
     DrawTextEx(Assets::catFont, _playing ? "PLAYING" : "PAUSED",
                {160, (float)(DISPLAY_H - 72)}, 16, 1, _playing ? barColor : dimText);
 
-    std::string dbg = "BT: " + std::string(_connected ? "connected" : "disconnected");
-    dbg += "  |  device: " + (_deviceName.empty() ? "none" : _deviceName);
-    DrawTextEx(Assets::catFont, dbg.c_str(), {8, (float)(DISPLAY_H - 20)}, 12, 1, debugColor);
+    // BT status
+    bool        connected  = ViewHandler::getInstance().isDeviceConnected();
+    std::string deviceName = ViewHandler::getInstance().getConnectedDevice();
+    std::string dbg = "BT: " + std::string(connected ? "connected" : "disconnected");
+    dbg += "  |  device: " + deviceName;
+    DrawTextEx(Assets::catFont, dbg.c_str(), {8, (float)(DISPLAY_H - 20)}, 12, 1, debugCol);
 
     DrawTextEx(Assets::catFont, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
 
-    for (auto& widget : _widgets) {
-        widget->draw();
-    }
+    for (auto& w : _widgets) w->draw();
 }
 
 int MusicView::logic() {
@@ -119,32 +110,27 @@ int MusicView::logic() {
     _fetchEvents();
     if (!_fftCfg) return 0;
 
-    // Copy latest buffer safely
     std::array<float, kBufferSize> buf;
     {
         std::lock_guard<std::mutex> lock(_bufferMutex);
         buf = _pcmBuffer;
     }
 
-    // Apply Hann window to reduce spectral leakage
+    // Hann window
     for (int i = 0; i < kBufferSize; i++) {
         float window = 0.5f * (1.0f - cosf(2.0f * M_PI * i / (kBufferSize - 1)));
         buf[i] *= window;
     }
 
-    // Run FFT
     kiss_fftr(_fftCfg, buf.data(), _fftOut.data());
 
-    // Map FFT bins to bar heights
-    // Use logarithmic frequency spacing to match human hearing
+    // Map FFT bins to bars with logarithmic frequency spacing
     int bins = kBufferSize / 2 + 1;
     for (int bar = 0; bar < kBarCount; bar++) {
-        float freqLow  = 20.0f  * powf(1000.0f, (float)bar / kBarCount);
-        float freqHigh = 20.0f  * powf(1000.0f, (float)(bar + 1) / kBarCount);
-        int binLow  = (int)(freqLow  * kBufferSize / kSampleRate);
-        int binHigh = (int)(freqHigh * kBufferSize / kSampleRate);
-        binLow  = std::max(1, std::min(binLow,  bins - 1));
-        binHigh = std::max(1, std::min(binHigh, bins - 1));
+        float freqLow  = 20.0f * powf(1000.0f, (float)bar / kBarCount);
+        float freqHigh = 20.0f * powf(1000.0f, (float)(bar + 1) / kBarCount);
+        int binLow  = std::max(1, std::min((int)(freqLow  * kBufferSize / kSampleRate), bins - 1));
+        int binHigh = std::max(1, std::min((int)(freqHigh * kBufferSize / kSampleRate), bins - 1));
 
         float magnitude = 0.0f;
         for (int b = binLow; b <= binHigh; b++) {
@@ -152,22 +138,15 @@ int MusicView::logic() {
             float im = _fftOut[b].i;
             magnitude = std::max(magnitude, sqrtf(re * re + im * im));
         }
-
-        // Normalize and scale
-        float target = std::min(1.0f, magnitude / 50.0f);
-        _targetHeights[bar] = target;
+        _targetHeights[bar] = std::min(1.0f, magnitude / 50.0f);
     }
 
-    // Smooth interpolation
+    // Smooth interpolation — fast attack, slow decay
     for (int i = 0; i < kBarCount; i++) {
-        if (_targetHeights[i] > _barHeights[i]) {
-            // Fast attack
-            _barHeights[i] += (_targetHeights[i] - _barHeights[i]) * kSmoothingFactor * dt;
-        } else {
-            // Slow decay
-            _barHeights[i] += (_targetHeights[i] - _barHeights[i]) * kDecayFactor * dt;
-        }
+        float factor = (_targetHeights[i] > _barHeights[i]) ? kSmoothingFactor : kDecayFactor;
+        _barHeights[i] += (_targetHeights[i] - _barHeights[i]) * factor * dt;
     }
+
     return 0;
 }
 
@@ -179,13 +158,12 @@ void MusicView::_fetchEvents() {
                 auto* bt = static_cast<BTEvent*>(e.get());
                 switch (bt->btType) {
                     case BTEvent::BTType::DeviceConnected:
-                        _connected  = true;
-                        _deviceName = bt->deviceName;
+                        ViewHandler::getInstance().setConnectedDevice(bt->deviceName);
                         break;
                     case BTEvent::BTType::DeviceDisconnected:
-                        _connected  = false;
-                        _title      = "No track";
-                        _artist     = "No artist";
+                        ViewHandler::getInstance().clearConnectedDevice();
+                        _title  = "No track";
+                        _artist = "No artist";
                         break;
                     case BTEvent::BTType::TrackChanged:
                         _title  = bt->title;
