@@ -1,8 +1,8 @@
 #pragma once
 #include <ViewHandler.hpp>
-#include <widgets/Widget.hpp>
+#include <widgets/Button.hpp>
 #include <vector>
-#include <functional>
+#include <memory>
 
 class MainView : public View {
     public:
@@ -14,11 +14,8 @@ class MainView : public View {
         void close() override;
     private:
         void _fetchEvents();
+        void _initButtons();
 
-        bool                  _transitioning    = false;
-        float                 _transitionTimer  = 0.0f;
-        int                   _hoveredBtn       = -1;
-        std::function<void()> _pendingSwitch;
-    
-        static constexpr float kTransitionDuration = 0.15f;
+        std::vector<std::unique_ptr<Button>> _navButtons;
+        std::unique_ptr<Button>              _settingsButton;
 };
