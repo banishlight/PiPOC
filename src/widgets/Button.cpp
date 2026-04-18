@@ -13,6 +13,11 @@ void Button::setSublabel(const std::string& sublabel) {
     _sublabel = sublabel;
 }
 
+void Button::setImage(Texture2D texture, Color bgTint) {
+    _image      = texture;
+    _imageBgTint = bgTint;
+}
+
 void Button::setColors(Color bg, Color hover, Color fill, Color text) {
     _bgColor    = bg;
     _hoverColor = hover;
@@ -21,6 +26,8 @@ void Button::setColors(Color bg, Color hover, Color fill, Color text) {
 }
 
 void Button::setAnimationStyle(AnimationStyle style, float duration) {
+    // Animation is not supported for image buttons
+    if (_image.has_value()) return;
     _animStyle    = style;
     _animDuration = duration;
 }
@@ -38,7 +45,7 @@ void Button::updateAnimation() {
     if (_animTimer >= _animDuration) {
         _animTimer = 0.0f;
         _animating = false;
-        _completed = true; // signal completion — caller polls this
+        _completed = true;
     }
 }
 
@@ -54,9 +61,19 @@ void Button::fireOnClick() {
     if (_onClick) _onClick();
 }
 
-void Button::draw() {
-    if (!_visible) return;
+void Button::drawAsImage() const {
+    // Optional background fill — skip if fully transparent
+    if (_imageBgTint.a > 0)
+        DrawRectangle(_x, _y, _width, _height, _imageBgTint);
 
+    // Centre the texture within the button bounds
+    Texture2D tex = _image.value();
+    int ix = _x + (_width  - tex.width)  / 2;
+    int iy = _y + (_height - tex.height) / 2;
+    DrawTexture(tex, ix, iy, WHITE);
+}
+
+void Button::drawAsLabel() {
     updateAnimation();
 
     switch (_animStyle) {
@@ -104,13 +121,22 @@ void Button::draw() {
     }
 }
 
+void Button::draw() {
+    if (!_visible) return;
+
+    if (_image.has_value())
+        drawAsImage();
+    else
+        drawAsLabel();
+}
+
 bool Button::handleEvent(const InputEvent& event) {
     if (!_visible || _animating) return false;
 
     if (event.inputType == InputEvent::InputType::TAP) {
         if (containsPoint(event.x, event.y)) {
-            if (_animStyle == AnimationStyle::None) {
-                // No animation — fire immediately since no view switch is involved
+            if (_image.has_value() || _animStyle == AnimationStyle::None) {
+                // Image buttons and None-style buttons fire immediately
                 if (_onClick) _onClick();
             } else {
                 _animating = true;

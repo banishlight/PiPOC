@@ -3,6 +3,7 @@
 #include <string>
 #include <functional>
 #include <optional>
+#include <raylib.h>
 
 class Button : public Widget {
 public:
@@ -16,29 +17,32 @@ public:
     void draw() override;
     bool handleEvent(const InputEvent& event) override;
 
-    // Optional sublabel drawn below the main label
+    // Optional sublabel — ignored if an image is set
     void setSublabel(const std::string& sublabel);
+
+    // Sets an image — disables label/sublabel rendering and animation
+    // Pass a transparent color to draw the image with no background fill
+    void setImage(Texture2D texture, Color bgTint = {0, 0, 0, 0});
 
     void setOnClick(std::function<void()> callback);
     void setColors(Color bg, Color hover, Color fill, Color text);
     void setAnimationStyle(AnimationStyle style, float duration = 0.15f);
 
     bool isAnimating() const { return _animating; }
-
-    // Returns true once after the animation completes. Resets the flag.
-    // Call this each frame after event processing to safely fire deferred actions.
     bool pollCompleted();
-
-    // Fires the onClick callback. Call after pollCompleted() returns true.
     void fireOnClick();
 
 private:
     bool containsPoint(float x, float y) const;
     void updateAnimation();
+    void drawAsImage() const;
+    void drawAsLabel();
 
     int         _x, _y, _width, _height;
     std::string _label;
-    std::optional<std::string> _sublabel;
+    std::optional<std::string>  _sublabel;
+    std::optional<Texture2D>    _image;
+    Color                       _imageBgTint = {0, 0, 0, 0};
 
     std::function<void()> _onClick;
 

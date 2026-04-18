@@ -59,11 +59,10 @@ void MainView::_initButtons() {
         _navButtons.push_back(std::move(btn));
     }
 
-    // Settings button — no animation, fires immediately (no view switch risk here
-    // since SettingsView switch happens via onClick directly on AnimationStyle::None)
+    // Settings button
     _settingsButton = std::make_unique<Button>(GEAR_X, GEAR_Y, GEAR_SIZE, GEAR_SIZE, "");
+    _settingsButton->setImage(Assets::gearIcon);
     _settingsButton->setOnClick([](){ ViewHandler::getInstance().switchView(std::make_unique<SettingsView>()); });
-    _settingsButton->setAnimationStyle(Button::AnimationStyle::None);
 }
 
 int MainView::logic() {
