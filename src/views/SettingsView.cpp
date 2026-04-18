@@ -16,37 +16,23 @@ SettingsView::SettingsView() {}
 SettingsView::~SettingsView() {}
 
 void SettingsView::start() {
-    // Fullscreen toggle 
+    // Fullscreen toggle
     auto fsBtn = std::make_unique<Button>(412, 260, 200, 52, "FULLSCREEN");
-    fsBtn->setOnClick([]() {
-        ToggleFullscreen();
-    });
-    fsBtn->setAnimationStyle(Button::AnimationStyle::None);
+    fsBtn->setOnClick([]() { ToggleFullscreen(); });
     _widgets.push_back(std::move(fsBtn));
 
-    // Back button
+    // Back
     auto backBtn = std::make_unique<Button>(412, 320, 200, 52, "BACK");
-    backBtn->setOnClick([]() {
-        ViewHandler::getInstance().switchView(std::make_unique<MainView>());
-    });
-    backBtn->setAnimationStyle(Button::AnimationStyle::SweepFill, 0.15f);
-    _backBtn = backBtn.get();
+    backBtn->setOnClick([](){ ViewHandler::getInstance().switchView(std::make_unique<MainView>()); });
     _widgets.push_back(std::move(backBtn));
 }
 
 void SettingsView::close() {
-    _backBtn = nullptr;
     _widgets.clear();
 }
 
 int SettingsView::logic() {
     _fetchEvents();
-    // Poll back button safely outside the event loop
-    if (_backBtn && _backBtn->pollCompleted()) {
-        _backBtn->fireOnClick();
-        return 0;
-    }
-
     return 0;
 }
 

@@ -14,22 +14,13 @@ void Button::setSublabel(const std::string& sublabel) {
 }
 
 void Button::setImage(Texture2D texture, Color bgTint) {
-    _image      = texture;
+    _image       = texture;
     _imageBgTint = bgTint;
 }
 
-void Button::setColors(Color bg, Color hover, Color fill, Color text) {
-    _bgColor    = bg;
-    _hoverColor = hover;
-    _fillColor  = fill;
-    _textColor  = text;
-}
-
-void Button::setAnimationStyle(AnimationStyle style, float duration) {
-    // Animation is not supported for image buttons
-    if (_image.has_value()) return;
-    _animStyle    = style;
-    _animDuration = duration;
+void Button::setColors(Color bg, Color text) {
+    _bgColor   = bg;
+    _textColor = text;
 }
 
 bool Button::containsPoint(float x, float y) const {
@@ -37,87 +28,34 @@ bool Button::containsPoint(float x, float y) const {
            y >= _y && y <= _y + _height;
 }
 
-void Button::updateAnimation() {
-    if (!_animating) return;
-
-    _animTimer += GetFrameTime();
-
-    if (_animTimer >= _animDuration) {
-        _animTimer = 0.0f;
-        _animating = false;
-        _completed = true;
-    }
-}
-
-bool Button::pollCompleted() {
-    if (_completed) {
-        _completed = false;
-        return true;
-    }
-    return false;
-}
-
-void Button::fireOnClick() {
-    if (_onClick) _onClick();
-}
-
 void Button::drawAsImage() const {
-    // Optional background fill — skip if fully transparent
     if (_imageBgTint.a > 0)
         DrawRectangle(_x, _y, _width, _height, _imageBgTint);
 
-    // Centre the texture within the button bounds
     Texture2D tex = _image.value();
     int ix = _x + (_width  - tex.width)  / 2;
     int iy = _y + (_height - tex.height) / 2;
     DrawTexture(tex, ix, iy, WHITE);
 }
 
-void Button::drawAsLabel() {
-    updateAnimation();
+void Button::drawAsLabel() const {
+    DrawRectangle(_x, _y, _width, _height, _bgColor);
+    DrawRectangleLines(_x, _y, _width, _height, GRAY);
 
-    switch (_animStyle) {
-        case AnimationStyle::SweepFill: {
-            DrawRectangle(_x, _y, _width, _height, _bgColor);
-
-            if (_animating) {
-                float t   = _animTimer / _animDuration;
-                t         = t > 1.0f ? 1.0f : t;
-                int fillW = (int)(_width * t);
-                DrawRectangle(_x, _y, fillW, _height, _fillColor);
-            }
-
-            Color topLine = _animating ? _fillColor : GRAY;
-            DrawRectangle(_x, _y, _width, 2, topLine);
-            DrawRectangleLines(_x, _y, _width, _height, GRAY);
-            break;
-        }
-
-        case AnimationStyle::None:
-        default:
-            DrawRectangle(_x, _y, _width, _height, _bgColor);
-            DrawRectangleLines(_x, _y, _width, _height, GRAY);
-            break;
-    }
-
-    // Main label
     int labelY = _sublabel.has_value()
         ? _y + (_height / 2) - 20
         : _y + (_height - 24) / 2;
 
     int lw = (int)MeasureTextEx(Assets::catFont24, _label.c_str(), 24, 1).x;
-    Color labelCol = _animating ? WHITE : _textColor;
     DrawTextEx(Assets::catFont24, _label.c_str(),
                {(float)(_x + (_width - lw) / 2), (float)labelY},
-               24, 1, labelCol);
+               24, 1, _textColor);
 
-    // Optional sublabel
     if (_sublabel.has_value()) {
-        Color subCol = _animating ? (Color){255, 200, 200, 255} : GRAY;
         int sw = (int)MeasureTextEx(Assets::catFont16, _sublabel->c_str(), 16, 1).x;
         DrawTextEx(Assets::catFont16, _sublabel->c_str(),
                    {(float)(_x + (_width - sw) / 2), (float)(_y + (_height / 2) + 8)},
-                   16, 1, subCol);
+                   16, 1, GRAY);
     }
 }
 
@@ -131,17 +69,11 @@ void Button::draw() {
 }
 
 bool Button::handleEvent(const InputEvent& event) {
-    if (!_visible || _animating) return false;
+    if (!_visible) return false;
 
     if (event.inputType == InputEvent::InputType::TAP) {
         if (containsPoint(event.x, event.y)) {
-            if (_image.has_value() || _animStyle == AnimationStyle::None) {
-                // Image buttons and None-style buttons fire immediately
-                _completed = true;
-            } else {
-                _animating = true;
-                _animTimer = 0.0f;
-            }
+            if (_onClick) _onClick();
             return true;
         }
     }

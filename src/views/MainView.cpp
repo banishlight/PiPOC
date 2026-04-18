@@ -37,7 +37,6 @@ MainView::MainView() {
 }
 
 MainView::~MainView() {}
-
 void MainView::start() {}
 void MainView::close() {}
 
@@ -54,12 +53,10 @@ void MainView::_initButtons() {
         auto btn = std::make_unique<Button>(bx, BTN_GRID_Y, BTN_W, BTN_H, defs[i].label);
         btn->setSublabel(defs[i].sublabel);
         btn->setOnClick(defs[i].action);
-        btn->setColors(BG2, BG2, RED_ACCENT, TEXT_MID);
-        btn->setAnimationStyle(Button::AnimationStyle::SweepFill, 0.15f);
+        btn->setColors(BG2, TEXT_MID);
         _navButtons.push_back(std::move(btn));
     }
 
-    // Settings button
     _settingsButton = std::make_unique<Button>(GEAR_X, GEAR_Y, GEAR_SIZE, GEAR_SIZE, "");
     _settingsButton->setImage(Assets::gearIcon);
     _settingsButton->setOnClick([](){ ViewHandler::getInstance().switchView(std::make_unique<SettingsView>()); });
@@ -67,20 +64,6 @@ void MainView::_initButtons() {
 
 int MainView::logic() {
     _fetchEvents();
-
-    // Poll nav buttons for completed animations and fire their deferred actions
-    // safely outside the event loop — prevents destroying 'this' mid-call
-    for (auto& btn : _navButtons) {
-        if (btn->pollCompleted()) {
-            btn->fireOnClick();
-            return 0; // view has switched, don't touch anything else
-        }
-    }
-    if (_settingsButton->pollCompleted()) {
-        _settingsButton->fireOnClick();
-        return 0;
-    }
-
     return 0;
 }
 
@@ -106,7 +89,7 @@ void MainView::_fetchEvents() {
                 auto* input = static_cast<InputEvent*>(e.get());
                 if (input->inputType != InputEvent::InputType::TAP) break;
 
-                if (_settingsButton->handleEvent(*input)) return;
+                if (_settingsButton->handleEvent(*input)) break;
 
                 for (auto& btn : _navButtons) {
                     if (btn->handleEvent(*input)) break;
@@ -182,6 +165,6 @@ void MainView::draw() {
     DrawTextEx(Assets::catFont16, ver,
                {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)},
                16, 2, {34, 34, 34, 255});
-               
+
     _settingsButton->draw();
 }
