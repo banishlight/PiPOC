@@ -4,7 +4,7 @@
 #include <optional>
 
 // Bar range constants — edit these to adjust gauge min/max
-static constexpr float BAR_RPM_MAX      = 8500.0f;
+static constexpr float BAR_RPM_MAX      = 9500.0f;
 static constexpr float BAR_SPEED_MAX    = 120.0f;   // km/h
 static constexpr float BAR_THROTTLE_MAX = 100.0f;   // percent
 static constexpr float BAR_COOLANT_MAX  = 120.0f;   // degrees C
