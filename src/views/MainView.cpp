@@ -182,5 +182,6 @@ void MainView::draw() {
     DrawTextEx(Assets::catFont16, ver,
                {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)},
                16, 2, {34, 34, 34, 255});
-
+               
+    _settingsButton->draw();
 }
