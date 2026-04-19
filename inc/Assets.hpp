@@ -6,6 +6,7 @@ namespace Assets {
     extern Font catFont;
     extern Font catFont16;
     extern Font catFont24;
+    extern Font catFont32;
     extern Font catFont52;
     extern Font catFont88;
     extern Texture2D gearIcon;

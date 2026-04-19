@@ -6,6 +6,7 @@ namespace Assets {
     Font catFont;
     Font catFont16;
     Font catFont24;
+    Font catFont32;
     Font catFont52;
     Font catFont88;
     Texture2D gearIcon;
@@ -15,6 +16,7 @@ namespace Assets {
         catFont = LoadFontEx("assets/Rajdhani-Bold.ttf", 64, nullptr, 0);
         catFont16 = LoadFontEx("assets/Rajdhani-Bold.ttf", 16, nullptr, 0);
         catFont24 = LoadFontEx("assets/Rajdhani-Bold.ttf", 24, nullptr, 0);
+        catFont32 = LoadFontEx("assets/Rajdhani-Bold.ttf", 32, nullptr, 0);
         catFont52 = LoadFontEx("assets/Rajdhani-Bold.ttf", 52, nullptr, 0);
         catFont88 = LoadFontEx("assets/Rajdhani-Bold.ttf", 88, nullptr, 0);
         gearIcon  = LoadTexture("assets/gear.png");
