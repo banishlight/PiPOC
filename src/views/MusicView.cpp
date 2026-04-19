@@ -77,9 +77,13 @@ void MusicView::draw() {
         DrawRectangle(bx, barBaseY - bh, barW, bh, barColor);
     }
 
-    // Track info
-    DrawTextEx(Assets::catFont, _title.c_str(),  {160, (float)(DISPLAY_H - 150)}, 36, 1, WHITE);
-    DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(DISPLAY_H - 106)}, 22, 1, dimText);
+    // Track info — left aligned to bar grid, positioned below the bars
+    int trackX  = barStartX;
+    int trackY  = barBaseY + 16;
+    DrawTextEx(Assets::catFont24, _title.c_str(),
+               {(float)trackX, (float)trackY}, 24, 1, WHITE);
+    DrawTextEx(Assets::catFont16, _artist.c_str(),
+               {(float)trackX, (float)(trackY + 30)}, 16, 1, dimText);
 
     for (auto& w : _widgets) w->draw();
 }
