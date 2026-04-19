@@ -1,6 +1,8 @@
 #pragma once
 #include <ViewHandler.hpp>
 #include <widgets/Button.hpp>
+#include <widgets/Topbar.hpp>
+#include <widgets/Bottombar.hpp>
 #include <vector>
 #include <memory>
 
@@ -17,5 +19,6 @@ class MainView : public View {
         void _initButtons();
 
         std::vector<std::unique_ptr<Button>> _navButtons;
-        std::unique_ptr<Button>              _settingsButton;
+        TopBar                               _topBar;
+        BottomBar                            _bottomBar; // no main menu button on MainView
 };

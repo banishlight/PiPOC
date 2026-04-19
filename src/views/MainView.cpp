@@ -10,8 +10,8 @@
 #include <cstring>
 #include <ctime>
 
-static constexpr int   TOPBAR_H    = 36;
-static constexpr int   BOTBAR_H    = 40;
+static constexpr int   TOPBAR_H    = TopBar::HEIGHT;
+static constexpr int   BOTBAR_H    = BottomBar::HEIGHT;
 static constexpr Color BG          = {10,  10,  10,  255};
 static constexpr Color BG2         = {15,  15,  15,  255};
 static constexpr Color BORDER      = {26,  26,  26,  255};
@@ -27,10 +27,6 @@ static constexpr int BTN_GAP    = 2;
 static constexpr int BTN_GRID_W = BTN_COUNT * BTN_W + (BTN_COUNT - 1) * BTN_GAP;
 static constexpr int BTN_GRID_X = (DISPLAY_W - BTN_GRID_W) / 2;
 static constexpr int BTN_GRID_Y = (DISPLAY_H - BTN_H) / 2 + 40;
-
-static constexpr int GEAR_X    = DISPLAY_W - 40;
-static constexpr int GEAR_Y    = DISPLAY_H - BOTBAR_H + 8;
-static constexpr int GEAR_SIZE = 24;
 
 MainView::MainView() {
     _initButtons();
@@ -56,10 +52,6 @@ void MainView::_initButtons() {
         btn->setColors(BG2, TEXT_MID);
         _navButtons.push_back(std::move(btn));
     }
-
-    _settingsButton = std::make_unique<Button>(GEAR_X, GEAR_Y, GEAR_SIZE, GEAR_SIZE, "");
-    _settingsButton->setImage(Assets::gearIcon);
-    _settingsButton->setOnClick([](){ ViewHandler::getInstance().switchView(std::make_unique<SettingsView>()); });
 }
 
 int MainView::logic() {
@@ -89,7 +81,7 @@ void MainView::_fetchEvents() {
                 auto* input = static_cast<InputEvent*>(e.get());
                 if (input->inputType != InputEvent::InputType::TAP) break;
 
-                if (_settingsButton->handleEvent(*input)) break;
+                if (_bottomBar.handleEvent(*input)) break;
 
                 for (auto& btn : _navButtons) {
                     if (btn->handleEvent(*input)) break;
@@ -117,25 +109,8 @@ void MainView::draw() {
     DrawRectangle(DISPLAY_W - 8 - bSize, DISPLAY_H - 8 - bThick, bSize, bThick, RED_ACCENT);
     DrawRectangle(DISPLAY_W - 8 - bThick, DISPLAY_H - 8 - bSize, bThick, bSize, RED_ACCENT);
 
-    // Top bar
-    DrawRectangle(0, 0, DISPLAY_W, TOPBAR_H, BG2);
-    DrawRectangle(0, TOPBAR_H - 1, DISPLAY_W, 1, BORDER);
-    DrawTextEx(Assets::catFont16, "MAZDA RX-8  13B-MSP", {16, 10}, 16, 3, TEXT_DIM);
-
-    // Clock
-    char clockBuf[16];
-    time_t now = time(nullptr);
-    strftime(clockBuf, sizeof(clockBuf), "%H:%M:%S", localtime(&now));
-    int cw = (int)MeasureTextEx(Assets::catFont16, clockBuf, 16, 1).x;
-    DrawTextEx(Assets::catFont16, clockBuf, {(float)(DISPLAY_W - cw - 16), 10}, 16, 1, TEXT_DIM);
-    DrawRectangle(DISPLAY_W - cw - 32, 8, 1, 20, BORDER);
-
-    // BT status
-    const char* btLabel = ViewHandler::getInstance().isDeviceConnected()
-        ? "BT  CONNECTED" : "BT  DISCONNECTED";
-    DrawTextEx(Assets::catFont16, btLabel, {(float)(DISPLAY_W - cw - 148), 10}, 16, 2, TEXT_DIM);
-    DrawRectangle(DISPLAY_W - cw - 164, 8, 1, 20, BORDER);
-    DrawTextEx(Assets::catFont16, "ECU  ONLINE", {(float)(DISPLAY_W - cw - 268), 10}, 16, 2, TEXT_DIM);
+    _topBar.draw();
+    _bottomBar.draw();
 
     // Title block
     int titleY = TOPBAR_H + 60;
@@ -150,21 +125,4 @@ void MainView::draw() {
     // Nav buttons
     for (auto& btn : _navButtons)
         btn->draw();
-
-    // Bottom bar
-    DrawRectangle(0, DISPLAY_H - BOTBAR_H, DISPLAY_W, BOTBAR_H, BG2);
-    DrawRectangle(0, DISPLAY_H - BOTBAR_H, DISPLAY_W, 1, BORDER);
-
-    DrawCircle(22, DISPLAY_H - BOTBAR_H + 20, 3, RED_ACCENT);
-    DrawTextEx(Assets::catFont16,
-               ViewHandler::getInstance().getConnectedDevice().c_str(),
-               {34, (float)(DISPLAY_H - BOTBAR_H + 11)}, 16, 2, TEXT_DIM);
-
-    const char* ver = "v0.1.0  PIPOC";
-    int vw = (int)MeasureTextEx(Assets::catFont16, ver, 16, 2).x;
-    DrawTextEx(Assets::catFont16, ver,
-               {(float)(DISPLAY_W - vw - GEAR_SIZE - 24), (float)(DISPLAY_H - BOTBAR_H + 11)},
-               16, 2, {34, 34, 34, 255});
-
-    _settingsButton->draw();
 }
