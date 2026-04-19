@@ -13,5 +13,5 @@ public:
     bool handleEvent(const InputEvent& event) override { return false; }
 
     static constexpr int HEIGHT = 32;
-    static constexpr char* CAR_NAME = "MAZDA RX-8  13B-MSP";
+    static constexpr const char* CAR_NAME = "MAZDA RX-8  13B-MSP";
 };
