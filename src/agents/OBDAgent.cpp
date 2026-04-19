@@ -32,14 +32,15 @@ void OBDAgent::stop() {
 }
 
 void OBDAgent::run(std::stop_token stopToken) {
-    if (!_serial.open()) {
-        // Could not open port — nothing to do
-        return;
-    }
-
-    if (!initELM327()) {
+    // Keep retrying until we find and initialise the adapter or stop is requested
+    while (!stopToken.stop_requested()) {
+        if (_serial.open() && initELM327()) {
+            ViewHandler::getInstance().setECUOnline(true);
+            break;
+        }
+        // Adapter not found or init failed — close and retry after delay
         _serial.close();
-        return;
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
     while (!stopToken.stop_requested()) {
@@ -61,6 +62,7 @@ void OBDAgent::run(std::stop_token stopToken) {
     }
 
     _serial.close();
+    ViewHandler::getInstance().setECUOnline(false);
 }
 
 std::string OBDAgent::sendCommand(const std::string& cmd) {
