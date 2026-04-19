@@ -32,33 +32,41 @@ void OBDAgent::stop() {
 }
 
 void OBDAgent::run(std::stop_token stopToken) {
-    // Keep retrying until we find and initialise the adapter or stop is requested
     while (!stopToken.stop_requested()) {
-        if (_serial.open() && initELM327()) {
-            ViewHandler::getInstance().setECUOnline(true);
-            break;
-        }
-        // Adapter not found or init failed — close and retry after delay
-        _serial.close();
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-    }
 
-    while (!stopToken.stop_requested()) {
-        auto pushIfValid = [&](float val, OBDEvent::OBDType type) {
-            if (val >= 0.0f) {
-                ViewHandler::getInstance().pushEvent(
-                    std::make_unique<OBDEvent>(type, val)
-                );
+        // Connection phase — retry until connected or stopped
+        while (!stopToken.stop_requested()) {
+            if (_serial.open() && initELM327()) {
+                ViewHandler::getInstance().setECUOnline(true);
+                break;
             }
-        };
+            _serial.close();
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+        }
 
-        pushIfValid(pollRPM(),         OBDEvent::OBDType::RPM);
-        pushIfValid(pollCoolantTemp(), OBDEvent::OBDType::CoolantTemp);
-        pushIfValid(pollSpeed(),       OBDEvent::OBDType::Speed);
-        pushIfValid(pollThrottlePos(), OBDEvent::OBDType::ThrottlePos);
+        // Polling phase — runs until disconnected or stopped
+        while (!stopToken.stop_requested()) {
+            auto pushIfValid = [&](float val, OBDEvent::OBDType type) {
+                if (val >= 0.0f)
+                    ViewHandler::getInstance().pushEvent(
+                        std::make_unique<OBDEvent>(type, val));
+            };
 
-        // Poll at ~10 Hz — adjust as needed
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            float rpm = pollRPM();
+            if (rpm < 0.0f) {
+                // Consecutive failure — assume disconnected
+                _serial.close();
+                ViewHandler::getInstance().setECUOnline(false);
+                break; // back to connection phase
+            }
+
+            pushIfValid(rpm,               OBDEvent::OBDType::RPM);
+            pushIfValid(pollCoolantTemp(), OBDEvent::OBDType::CoolantTemp);
+            pushIfValid(pollSpeed(),       OBDEvent::OBDType::Speed);
+            pushIfValid(pollThrottlePos(), OBDEvent::OBDType::ThrottlePos);
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     }
 
     _serial.close();
