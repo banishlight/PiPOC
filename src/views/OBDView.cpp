@@ -47,7 +47,9 @@ OBDView::OBDView() {
     _speed.setMax(120.0f);
     _throttle.setMax(100.0f);
     _oilTemp.setMax(130.0f);
+    _intakeTemp.setMax(60.0f);
     _maf.setMax(20.0f);
+    _voltage.setMax(16.0f);
 }
 OBDView::~OBDView() {}
 void OBDView::start() {}
