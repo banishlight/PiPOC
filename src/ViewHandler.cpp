@@ -1,7 +1,6 @@
 #include <ViewHandler.hpp>
 #include <agents/DisplayAgent.hpp>
 #include <views/MainView.hpp>
-// #include <views/OBDView.hpp>
 
 ViewHandler::ViewHandler() {
     // Startup view
@@ -61,6 +60,38 @@ bool ViewHandler::isDeviceConnected() const {
 }
 
 void ViewHandler::clearConnectedDevice() {
-    _deviceName = "Not Connected";
+    _deviceName  = "Not Connected";
     _isBTConnect = false;
+}
+
+void ViewHandler::setECUOnline(bool online) {
+    _isECUOnline = online;
+}
+
+bool ViewHandler::isECUOnline() const {
+    return _isECUOnline;
+}
+
+void ViewHandler::setWifiConnected(bool connected) {
+    _isWifiConnected = connected;
+}
+
+bool ViewHandler::isWifiConnected() const {
+    return _isWifiConnected;
+}
+
+void ViewHandler::setCPUTemp(float temp) {
+    _cpuTemp = temp;
+}
+
+float ViewHandler::getCPUTemp() const {
+    return _cpuTemp;
+}
+
+void ViewHandler::setCPULoad(float load) {
+    _cpuLoad = load;
+}
+
+float ViewHandler::getCPULoad() const {
+    return _cpuLoad;
 }

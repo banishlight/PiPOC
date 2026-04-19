@@ -1,4 +1,7 @@
 #pragma once
+
+constexpr const char* VERSION = "1.0.0";
+
 // Header for storing constants related to 
 // hardware and other global values.
 static constexpr int DISPLAY_W = 1024;

@@ -101,11 +101,18 @@ class ViewHandler {
         void updateView();
         void drawView();
 
-        // Cross view data
-        void setConnectedDevice( std::string name);
+        void setConnectedDevice(std::string name);
         const std::string& getConnectedDevice() const;
         bool isDeviceConnected() const;
         void clearConnectedDevice();
+        void setECUOnline(bool online);
+        bool isECUOnline() const;
+        void setWifiConnected(bool connected);
+        bool isWifiConnected() const;
+        void setCPUTemp(float temp);
+        float getCPUTemp() const;
+        void setCPULoad(float load);
+        float getCPULoad() const;
 
     private:
         ViewHandler();
@@ -119,6 +126,11 @@ class ViewHandler {
         std::vector<std::unique_ptr<ViewEvent>> _eventQueue;
         std::mutex            _eventMutex;
 
-        std::string           _deviceName = "Not Connected";
+        std::string           _deviceName  = "Not Connected";
         bool                  _isBTConnect = false;
+
+        bool                  _isECUOnline    = false;
+        bool                  _isWifiConnected = false;
+        float                 _cpuTemp        = 0.0f;
+        float                 _cpuLoad        = 0.0f;
 };
