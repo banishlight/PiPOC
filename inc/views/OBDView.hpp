@@ -1,5 +1,6 @@
 #pragma once
 #include <ViewHandler.hpp>
+#include <Sensor.hpp>
 #include <raylib.h>
 #include <optional>
 
@@ -27,16 +28,16 @@ class OBDView : public View {
         void fetchEvents();
 
         // Hero cells
-        std::optional<float> _rpm;
-        std::optional<float> _coolant;
+        Sensor _rpm{true, 5};
+        Sensor _coolant{true, 3};
 
         // Secondary cells
-        std::optional<float> _speed;
-        std::optional<float> _throttle;
-        std::optional<float> _oilTemp;
-        std::optional<float> _intakeTemp;
-        std::optional<float> _maf;
-        std::optional<float> _voltage;
+        Sensor _speed{false};
+        Sensor _throttle{false};
+        Sensor _oilTemp{true, 3};
+        Sensor _intakeTemp{true, 3};
+        Sensor _maf{true, 8};
+        Sensor _voltage{false};
 
         // Drawing helpers
         void drawCell(int x, int y, int w, int h,
@@ -45,4 +46,6 @@ class OBDView : public View {
                       float barPct, Color barCol, bool hasBar) const;
         void drawTopBar() const;
         void drawBottomBar() const;
+
+
 };

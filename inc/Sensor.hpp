@@ -4,7 +4,7 @@
 
 class Sensor {
     public:
-        Sensor(bool buf, int size);
+        Sensor(bool buf = false, int size = 3);
         ~Sensor();
 
         void setValue(float val);
@@ -18,8 +18,8 @@ class Sensor {
 
     private:
         std::optional<float> _value;
-        const bool _buf = false;
-        const int _size = 3;
+        const bool _buf;
+        const int _size;
 
         float _min = 0;
         float _max = 0;

@@ -3,6 +3,7 @@
 #include <Assets.hpp>
 #include <Config.hpp>
 #include <ViewHandler.hpp>
+#include <Sensor.hpp>
 #include <raylib.h>
 #include <cstdio>
 #include <cstring>
@@ -53,13 +54,13 @@ void OBDView::fetchEvents() {
             case ViewEvent::Type::OBD: {
                 auto& obd = static_cast<OBDEvent&>(*e);
                 switch (obd.obdType) {
-                    case OBDEvent::OBDType::RPM:         _rpm        = obd.value; break;
-                    case OBDEvent::OBDType::CoolantTemp: _coolant    = obd.value; break;
-                    case OBDEvent::OBDType::Speed:       _speed      = obd.value; break;
-                    case OBDEvent::OBDType::ThrottlePos: _throttle   = obd.value; break;
-                    case OBDEvent::OBDType::OilTemp:     _oilTemp    = obd.value; break;
-                    case OBDEvent::OBDType::IntakeTemp:  _intakeTemp = obd.value; break;
-                    case OBDEvent::OBDType::MAF:         _maf        = obd.value; break;
+                    case OBDEvent::OBDType::RPM:         _rpm.setValue(obd.value); break;
+                    case OBDEvent::OBDType::CoolantTemp: _coolant.setValue(obd.value); break;
+                    case OBDEvent::OBDType::Speed:       _speed.setValue(obd.value); break;
+                    case OBDEvent::OBDType::ThrottlePos: _throttle.setValue(obd.value); break;
+                    case OBDEvent::OBDType::OilTemp:     _oilTemp.setValue(obd.value); break;
+                    case OBDEvent::OBDType::IntakeTemp:  _intakeTemp.setValue(obd.value); break;
+                    case OBDEvent::OBDType::MAF:         _maf.setValue(obd.value); break;
                 }
                 break;
             }
@@ -202,7 +203,7 @@ void OBDView::draw() {
     int heroH = rowH * 2 + GAP;
 
     // ---- RPM — hero, rows 0+1, col 0 ----
-    fmtVal(buf, sizeof(buf), _rpm, "%.0f");
+    fmtVal(buf, sizeof(buf), _rpm.getValue(), "%.0f");
     DrawRectangle(col0X, row0Y, col0W, heroH, C_BG_CELL);
     DrawRectangle(col0X, row0Y, col0W, 2, C_RED_ACCENT);
     DrawTextEx(Assets::catFont16, "RPM",
@@ -213,13 +214,13 @@ void OBDView::draw() {
     DrawTextEx(Assets::catFont16, "REVS / MIN",
                {(float)(col0X + PAD), (float)(row0Y + heroH - (int)FONT_16 - PAD)},
                FONT_16, 1, C_UNIT);
-    float rpmPct = _rpm.has_value() ? clamp01(_rpm.value() / BAR_RPM_MAX) : 0.0f;
+    float rpmPct = _rpm.getValue().has_value() ? clamp01(_rpm.getValue().value() / _rpm.getMax()) : _rpm.getMin();
     DrawRectangle(col0X, row0Y + heroH - BAR_H, col0W, BAR_H, C_BORDER);
     DrawRectangle(col0X, row0Y + heroH - BAR_H, (int)(rpmPct * col0W), BAR_H, C_YELLOW_BAR);
 
     // ---- COOLANT — hero, rows 0+1, col 1 ----
-    fmtVal(buf, sizeof(buf), _coolant, "%.0f");
-    bool coolantWarn = _coolant.has_value() && _coolant.value() > WARN_COOLANT_C;
+    fmtVal(buf, sizeof(buf), _coolant.getValue(), "%.0f");
+    bool coolantWarn = _coolant.getValue().has_value() && _coolant.getValue().value() > WARN_COOLANT_C;
     Color coolantBg  = coolantWarn ? C_BG_WARN : C_BG_COOLANT;
     Color coolantBar = coolantWarn ? C_RED_BAR  : C_GREEN_BAR;
     DrawRectangle(col1X, row0Y, col1W, heroH, coolantBg);
@@ -232,50 +233,50 @@ void OBDView::draw() {
     DrawTextEx(Assets::catFont16, "DEGREES C",
                {(float)(col1X + PAD), (float)(row0Y + heroH - (int)FONT_16 - PAD)},
                FONT_16, 1, C_UNIT);
-    float coolPct = _coolant.has_value() ? clamp01(_coolant.value() / BAR_COOLANT_MAX) : 0.0f;
+    float coolPct = _coolant.getValue().has_value() ? clamp01(_coolant.getValue().value() / BAR_COOLANT_MAX) : 0.0f;
     DrawRectangle(col1X, row0Y + heroH - BAR_H, col1W, BAR_H, C_BORDER);
     DrawRectangle(col1X, row0Y + heroH - BAR_H, (int)(coolPct * col1W), BAR_H, coolantBar);
 
     // ---- SPEED — row 0, col 2 ----
-    fmtVal(buf, sizeof(buf), _speed, "%.0f");
+    fmtVal(buf, sizeof(buf), _speed.getValue(), "%.0f");
     DrawRectangle(col2X, row0Y, col2W, rowH, C_BG_CELL);
     DrawRectangle(col2X, row0Y, col2W, 2, C_GREEN_BAR);
     drawSecondaryCell(col2X, row0Y, col2W, rowH, "SPEED", buf, "KM/H",
                       C_BG_CELL, C_VALUE,
-                      _speed.has_value() ? clamp01(_speed.value() / BAR_SPEED_MAX) : 0.0f,
+                      _speed.getValue().has_value() ? clamp01(_speed.getValue().value() / BAR_SPEED_MAX) : 0.0f,
                       C_GREEN_BAR, true);
 
     // ---- THROTTLE — row 0, col 3 ----
-    fmtVal(buf, sizeof(buf), _throttle, "%.1f");
+    fmtVal(buf, sizeof(buf), _throttle.getValue(), "%.1f");
     DrawRectangle(col3X, row0Y, col3W, 2, C_GREEN_BAR);
     drawSecondaryCell(col3X, row0Y, col3W, rowH, "THROTTLE", buf, "PERCENT",
                       C_BG_CELL, C_VALUE,
-                      _throttle.has_value() ? clamp01(_throttle.value() / BAR_THROTTLE_MAX) : 0.0f,
+                      _throttle.getValue().has_value() ? clamp01(_throttle.getValue().value() / BAR_THROTTLE_MAX) : 0.0f,
                       C_GREEN_BAR, true);
 
     // ---- MAF — row 1, col 2 ----
-    fmtVal(buf, sizeof(buf), _maf, "%.1f");
+    fmtVal(buf, sizeof(buf), _maf.getValue(), "%.1f");
     drawSecondaryCell(col2X, row1Y, col2W, rowH, "MAF", buf, "G/SEC",
                       C_BG_CELL, C_VALUE,
-                      _maf.has_value() ? clamp01(_maf.value() / BAR_MAF_MAX) : 0.0f,
+                      _maf.getValue().has_value() ? clamp01(_maf.getValue().value() / BAR_MAF_MAX) : 0.0f,
                       C_GREEN_BAR, true);
 
     // ---- VOLTAGE — row 1, col 3 ----
-    fmtVal(buf, sizeof(buf), _voltage, "%.1f");
+    fmtVal(buf, sizeof(buf), _voltage.getValue(), "%.1f");
     drawSecondaryCell(col3X, row1Y, col3W, rowH, "VOLTAGE", buf, "VOLTS",
                       C_BG_CELL, C_VALUE, 0.0f, C_GREEN_BAR, false);
 
     // ---- OIL TEMP — row 2, col 0 ----
-    fmtVal(buf, sizeof(buf), _oilTemp, "%.0f");
-    bool  oilWarn  = _oilTemp.has_value() && _oilTemp.value() > WARN_OIL_C;
+    fmtVal(buf, sizeof(buf), _oilTemp.getValue(), "%.0f");
+    bool  oilWarn  = _oilTemp.getValue().has_value() && _oilTemp.getValue().value() > WARN_OIL_C;
     Color oilCol   = oilWarn ? C_RED_ACCENT : C_VALUE;
     drawSecondaryCell(col0X, row2Y, col0W, rowH, "OIL TEMP", buf, "DEGREES C",
                       C_BG_CELL, oilCol,
-                      _oilTemp.has_value() ? clamp01(_oilTemp.value() / BAR_OIL_MAX) : 0.0f,
+                      _oilTemp.getValue().has_value() ? clamp01(_oilTemp.getValue().value() / BAR_OIL_MAX) : 0.0f,
                       C_YELLOW_BAR, true);
 
     // ---- INTAKE AIR — row 2, col 1 ----
-    fmtVal(buf, sizeof(buf), _intakeTemp, "%.1f");
+    fmtVal(buf, sizeof(buf), _intakeTemp.getValue(), "%.1f");
     drawSecondaryCell(col1X, row2Y, col1W, rowH, "INTAKE AIR", buf, "DEGREES C",
                       C_BG_CELL, C_VALUE, 0.0f, C_GREEN_BAR, false);
 
