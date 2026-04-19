@@ -1,9 +1,23 @@
 #pragma once
 #include <widgets/Widget.hpp>
+#include <widgets/Button.hpp>
+#include <memory>
 
-class Bottombar : public Widget {
-    public:
+// BottomBar — shared across all views
+// Always shows: BT device name, settings button, software version
+// Optionally shows: main menu button (pass showMainMenu = true)
 
-    private:
-    
+class BottomBar : public Widget {
+public:
+    explicit BottomBar(bool showMainMenu = false);
+
+    void draw() override;
+    bool handleEvent(const InputEvent& event) override;
+
+    static constexpr int HEIGHT = 32;
+
+private:
+    std::unique_ptr<Button> _settingsButton;
+    std::unique_ptr<Button> _mainMenuButton;
+    bool                    _showMainMenu;
 };
