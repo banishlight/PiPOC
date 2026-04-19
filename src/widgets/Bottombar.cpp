@@ -59,7 +59,7 @@ void BottomBar::draw() {
 
     // Software version — centred
     char verBuf[32];
-    snprintf(verBuf, sizeof(verBuf), "v%s  PIPOC", VERSION);
+    snprintf(verBuf, sizeof(verBuf), "v%s  %s", VERSION, SOFTWARE_NAME);
     int vw = (int)MeasureTextEx(Assets::catFont24, verBuf, FONT, 1).x;
     DrawTextEx(Assets::catFont24, verBuf,
                {(float)((DISPLAY_W - vw) / 2), ty}, FONT, 1, CB_VER);

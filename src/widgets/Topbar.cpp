@@ -28,7 +28,7 @@ void TopBar::draw() {
     int   sep = (TopBar::HEIGHT - SEP_H) / 2;
 
     // -- Left: car model --
-    DrawTextEx(Assets::catFont24, "MAZDA RX-8  13B-MSP",
+    DrawTextEx(Assets::catFont24, CAR_NAME,
                {(float)PAD, ry}, FONT, 1, C_DIM);
 
     // -- Right side built right to left --
