@@ -78,12 +78,13 @@ void MusicView::draw() {
     }
 
     // Track info — left aligned to bar grid, positioned below the bars
-    int trackX  = barStartX;
-    int trackY  = barBaseY + 16;
+    int trackX      = barStartX;
+    int trackY      = barBaseY + 16;
+    int artistY     = trackY + 88 + 8; // 88px title height + 8px gap
     DrawTextEx(Assets::catFont88, _title.c_str(),
                {(float)trackX, (float)trackY}, 88, 1, WHITE);
     DrawTextEx(Assets::catFont52, _artist.c_str(),
-               {(float)trackX, (float)(trackY + 30)}, 52, 1, dimText);
+               {(float)trackX, (float)artistY}, 52, 1, dimText);
 
     for (auto& w : _widgets) w->draw();
 }
