@@ -14,7 +14,7 @@ public:
     void draw() override;
     bool handleEvent(const InputEvent& event) override;
 
-    static constexpr int HEIGHT = 32;
+    static constexpr int HEIGHT = 48;
 
 private:
     std::unique_ptr<Button> _settingsButton;

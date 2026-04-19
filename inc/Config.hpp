@@ -1,6 +1,7 @@
 #pragma once
 
 constexpr const char* VERSION = "1.0.0";
+constexpr const char* CAR_NAME = "MAZDA RX-8  13B-MSP";
 
 // Header for storing constants related to 
 // hardware and other global values.

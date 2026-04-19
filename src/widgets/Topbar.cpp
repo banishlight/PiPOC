@@ -12,8 +12,9 @@ static constexpr Color C_DIM    = {85,  85,  85,  255};
 static constexpr Color C_GOOD   = {0,   180, 100, 255};
 static constexpr Color C_WARN   = {180, 30,  30,  255};
 
-static constexpr float FONT = 16.0f;
-static constexpr int   PAD  = 8;
+static constexpr float FONT = 24.0f;
+static constexpr int   PAD  = 10;
+static constexpr int   SEP_H = TopBar::HEIGHT - 16; // separator line height
 
 TopBar::TopBar() {}
 
@@ -23,71 +24,66 @@ void TopBar::draw() {
     DrawRectangle(0, 0, DISPLAY_W, TopBar::HEIGHT, C_BG);
     DrawRectangle(0, TopBar::HEIGHT - 1, DISPLAY_W, 1, C_BORDER);
 
-    // -- Left side: car model --
-    DrawTextEx(Assets::catFont16, CAR_NAME,
-               {(float)PAD, (float)(TopBar::HEIGHT / 2 - FONT / 2)},
-               FONT, 1, C_DIM);
+    float ry = (float)(TopBar::HEIGHT / 2 - (int)FONT / 2);
+    int   sep = (TopBar::HEIGHT - SEP_H) / 2;
 
-    // -- Right side: built right to left --
+    // -- Left: car model --
+    DrawTextEx(Assets::catFont24, "MAZDA RX-8  13B-MSP",
+               {(float)PAD, ry}, FONT, 1, C_DIM);
+
+    // -- Right side built right to left --
+    int rx = DISPLAY_W - PAD;
+
     // Clock
     char clockBuf[16];
     time_t now = time(nullptr);
     strftime(clockBuf, sizeof(clockBuf), "%H:%M:%S", localtime(&now));
-    int clockW = (int)MeasureTextEx(Assets::catFont16, clockBuf, FONT, 1).x;
-    float ry = (float)(TopBar::HEIGHT / 2 - FONT / 2);
-    int rx = DISPLAY_W - PAD;
-
-    rx -= clockW;
-    DrawTextEx(Assets::catFont16, clockBuf, {(float)rx, ry}, FONT, 1, C_DIM);
+    rx -= (int)MeasureTextEx(Assets::catFont24, clockBuf, FONT, 1).x;
+    DrawTextEx(Assets::catFont24, clockBuf, {(float)rx, ry}, FONT, 1, C_DIM);
     rx -= PAD;
-    DrawRectangle(rx, 6, 1, 20, C_BORDER);
+    DrawRectangle(rx, sep, 1, SEP_H, C_BORDER);
     rx -= PAD;
 
     // CPU temp
     char tempBuf[16];
-    snprintf(tempBuf, sizeof(tempBuf), "%.0f C", ViewHandler::getInstance().getCPUTemp());
-    int tempW = (int)MeasureTextEx(Assets::catFont16, tempBuf, FONT, 1).x;
-    rx -= tempW;
-    DrawTextEx(Assets::catFont16, tempBuf, {(float)rx, ry}, FONT, 1, C_DIM);
-
-    // CPU temp label
-    int cpuTempLabelW = (int)MeasureTextEx(Assets::catFont16, "CPU ", FONT, 1).x;
-    rx -= cpuTempLabelW;
-    DrawTextEx(Assets::catFont16, "CPU ", {(float)rx, ry}, FONT, 1, C_DIM);
+    snprintf(tempBuf, sizeof(tempBuf), "%.0fC", ViewHandler::getInstance().getCPUTemp());
+    int cpuLabel = (int)MeasureTextEx(Assets::catFont24, "CPU ", FONT, 1).x;
+    int cpuTemp  = (int)MeasureTextEx(Assets::catFont24, tempBuf, FONT, 1).x;
+    rx -= cpuTemp;
+    DrawTextEx(Assets::catFont24, tempBuf, {(float)rx, ry}, FONT, 1, C_DIM);
+    rx -= cpuLabel;
+    DrawTextEx(Assets::catFont24, "CPU ", {(float)rx, ry}, FONT, 1, C_DIM);
     rx -= PAD;
-    DrawRectangle(rx, 6, 1, 20, C_BORDER);
+    DrawRectangle(rx, sep, 1, SEP_H, C_BORDER);
     rx -= PAD;
 
     // CPU load
     char loadBuf[16];
     snprintf(loadBuf, sizeof(loadBuf), "%.0f%%", ViewHandler::getInstance().getCPULoad());
-    int loadW = (int)MeasureTextEx(Assets::catFont16, loadBuf, FONT, 1).x;
-    rx -= loadW;
-    DrawTextEx(Assets::catFont16, loadBuf, {(float)rx, ry}, FONT, 1, C_DIM);
-
-    int loadLabelW = (int)MeasureTextEx(Assets::catFont16, "LOAD ", FONT, 1).x;
-    rx -= loadLabelW;
-    DrawTextEx(Assets::catFont16, "LOAD ", {(float)rx, ry}, FONT, 1, C_DIM);
+    int loadLabel = (int)MeasureTextEx(Assets::catFont24, "LOAD ", FONT, 1).x;
+    int loadVal   = (int)MeasureTextEx(Assets::catFont24, loadBuf, FONT, 1).x;
+    rx -= loadVal;
+    DrawTextEx(Assets::catFont24, loadBuf, {(float)rx, ry}, FONT, 1, C_DIM);
+    rx -= loadLabel;
+    DrawTextEx(Assets::catFont24, "LOAD ", {(float)rx, ry}, FONT, 1, C_DIM);
     rx -= PAD;
-    DrawRectangle(rx, 6, 1, 20, C_BORDER);
+    DrawRectangle(rx, sep, 1, SEP_H, C_BORDER);
     rx -= PAD;
 
     // WiFi status
     bool wifi = ViewHandler::getInstance().isWifiConnected();
-    const char* wifiLabel = wifi ? "WIFI" : "WIFI";
+    const char* wifiLabel = "WIFI";
     Color wifiCol = wifi ? C_GOOD : C_WARN;
-    int wifiW = (int)MeasureTextEx(Assets::catFont16, wifiLabel, FONT, 1).x;
-    rx -= wifiW;
-    DrawTextEx(Assets::catFont16, wifiLabel, {(float)rx, ry}, FONT, 1, wifiCol);
+    rx -= (int)MeasureTextEx(Assets::catFont24, wifiLabel, FONT, 1).x;
+    DrawTextEx(Assets::catFont24, wifiLabel, {(float)rx, ry}, FONT, 1, wifiCol);
     rx -= PAD;
-    DrawRectangle(rx, 6, 1, 20, C_BORDER);
+    DrawRectangle(rx, sep, 1, SEP_H, C_BORDER);
     rx -= PAD;
 
     // ECU status
     bool ecu = ViewHandler::getInstance().isECUOnline();
     const char* ecuLabel = ecu ? "ECU  ONLINE" : "ECU  OFFLINE";
     Color ecuCol = ecu ? C_GOOD : C_WARN;
-    int ecuW = (int)MeasureTextEx(Assets::catFont16, ecuLabel, FONT, 1).x;
-    rx -= ecuW;
-    DrawTextEx(Assets::catFont16, ecuLabel, {(float)rx, ry}, FONT, 1, ecuCol);
+    rx -= (int)MeasureTextEx(Assets::catFont24, ecuLabel, FONT, 1).x;
+    DrawTextEx(Assets::catFont24, ecuLabel, {(float)rx, ry}, FONT, 1, ecuCol);
 }
