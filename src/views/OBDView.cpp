@@ -6,17 +6,14 @@
 #include <Sensor.hpp>
 #include <raylib.h>
 #include <cstdio>
-#include <cstring>
-#include <ctime>
 
 // Font sizes — must match the sizes fonts were loaded at in Assets::load()
 static constexpr float FONT_16 = 16.0f;
 static constexpr float FONT_24 = 24.0f;
 static constexpr float FONT_52 = 52.0f;
-static constexpr float FONT_88 = 52.0f;
+static constexpr float FONT_88 = 88.0f;
 // Colours
 static constexpr Color C_BG         = {10,  10,  10,  255};
-static constexpr Color C_BG2        = {15,  15,  15,  255};
 static constexpr Color C_BG_CELL    = {17,  17,  17,  255};
 static constexpr Color C_BG_COOLANT = {20,  20,  0,   255};
 static constexpr Color C_BG_WARN    = {26,  8,   8,   255};
@@ -30,13 +27,10 @@ static constexpr Color C_RED_ACCENT = {255, 40,  0,   255};
 static constexpr Color C_GREEN_BAR  = {0,   180, 100, 255};
 static constexpr Color C_YELLOW_BAR = {220, 220, 0,   255};
 static constexpr Color C_RED_BAR    = {180, 30,  30,  255};
-static constexpr Color C_DIM        = {85,  85,  85,  255};
-static constexpr Color C_MENU_BG    = {0,   60,  120, 255};
-static constexpr Color C_MENU_TEXT  = {170, 200, 240, 255};
 
 // Layout
-static constexpr int TOPBAR_H = 32;
-static constexpr int BOTBAR_H = 32;
+static constexpr int TOPBAR_H = TopBar::HEIGHT;
+static constexpr int BOTBAR_H = BottomBar::HEIGHT;
 static constexpr int BAR_H    = 3;
 static constexpr int GAP      = 2;
 static constexpr int PAD      = 8;
@@ -77,17 +71,7 @@ void OBDView::fetchEvents() {
             case ViewEvent::Type::INPUT: {
                 auto* input = static_cast<InputEvent*>(e.get());
                 if (input->inputType != InputEvent::InputType::TAP) break;
-
-                Rectangle mainMenuBtn = {
-                    (float)(DISPLAY_W - 130),
-                    (float)(DISPLAY_H - BOTBAR_H + 4),
-                    120.0f,
-                    (float)(BOTBAR_H - 8)
-                };
-                if (CheckCollisionPointRec({input->x, input->y}, mainMenuBtn)) {
-                    ViewHandler::getInstance().switchView(std::make_unique<MainView>());
-                    return;
-                }
+                _bottomBar.handleEvent(*input);
                 break;
             }
 
@@ -106,10 +90,6 @@ static void fmtVal(char* buf, size_t sz, std::optional<float> val, const char* f
         snprintf(buf, sz, "--");
     else
         snprintf(buf, sz, format, val.value());
-}
-
-static float clamp01(float v) {
-    return v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v);
 }
 
 // Draws a standard secondary cell using catFont24 for value, catFont16 for label/unit
@@ -131,62 +111,16 @@ static void drawSecondaryCell(int x, int y, int w, int h,
 
     if (hasBar) {
         DrawRectangle(x, y + h - BAR_H, w, BAR_H, C_BORDER);
-        DrawRectangle(x, y + h - BAR_H, (int)(clamp01(barPct) * w), BAR_H, barCol);
+        DrawRectangle(x, y + h - BAR_H, (int)(barPct * w), BAR_H, barCol);
     }
-}
-
-void OBDView::drawTopBar() const {
-    DrawRectangle(0, 0, DISPLAY_W, TOPBAR_H, C_BG2);
-    DrawRectangle(0, TOPBAR_H - 1, DISPLAY_W, 1, C_BORDER);
-
-    DrawTextEx(Assets::catFont16, "MAZDA RX-8  13B-MSP",
-               {(float)PAD, (float)(TOPBAR_H / 2 - FONT_16 / 2)}, FONT_16, 1, C_DIM);
-
-    char clockBuf[16];
-    time_t now = time(nullptr);
-    strftime(clockBuf, sizeof(clockBuf), "%H:%M:%S", localtime(&now));
-
-    float cy = (float)(TOPBAR_H / 2 - FONT_16 / 2);
-    int cw = (int)MeasureTextEx(Assets::catFont16, clockBuf, FONT_16, 1).x;
-    DrawTextEx(Assets::catFont16, clockBuf,
-               {(float)(DISPLAY_W - cw - PAD), cy}, FONT_16, 1, C_DIM);
-
-    DrawRectangle(DISPLAY_W - cw - PAD - 12, 6, 1, 20, C_BORDER);
-    int btw = (int)MeasureTextEx(Assets::catFont16, "BT CONNECTED", FONT_16, 1).x;
-    DrawTextEx(Assets::catFont16, "BT CONNECTED",
-               {(float)(DISPLAY_W - cw - PAD - 14 - btw), cy}, FONT_16, 1, C_DIM);
-
-    DrawRectangle(DISPLAY_W - cw - PAD - 16 - btw, 6, 1, 20, C_BORDER);
-    int ecuw = (int)MeasureTextEx(Assets::catFont16, "ECU ONLINE", FONT_16, 1).x;
-    DrawTextEx(Assets::catFont16, "ECU ONLINE",
-               {(float)(DISPLAY_W - cw - PAD - 18 - btw - ecuw), cy}, FONT_16, 1, C_DIM);
-}
-
-void OBDView::drawBottomBar() const {
-    int y = DISPLAY_H - BOTBAR_H;
-    DrawRectangle(0, y, DISPLAY_W, BOTBAR_H, C_BG2);
-    DrawRectangle(0, y, DISPLAY_W, 1, C_BORDER);
-
-    DrawCircle(PAD + 4, y + BOTBAR_H / 2, 3, C_RED_ACCENT);
-    DrawTextEx(Assets::catFont16, "CUBA'S IPHONE",
-               {(float)(PAD + 14), (float)(y + BOTBAR_H / 2 - FONT_16 / 2)}, FONT_16, 1, C_DIM);
-
-    int btnW = 120, btnH = BOTBAR_H - 8;
-    int bx = DISPLAY_W - btnW - PAD;
-    int by = y + 4;
-    DrawRectangle(bx, by, btnW, btnH, C_MENU_BG);
-    int mw = (int)MeasureTextEx(Assets::catFont16, "MAIN MENU", FONT_16, 1).x;
-    DrawTextEx(Assets::catFont16, "MAIN MENU",
-               {(float)(bx + (btnW - mw) / 2), (float)(by + btnH / 2 - FONT_16 / 2)},
-               FONT_16, 1, C_MENU_TEXT);
 }
 
 void OBDView::draw() {
     char buf[32];
 
     DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, C_GRID);
-    drawTopBar();
-    drawBottomBar();
+    _topBar.draw();
+    _bottomBar.draw();
 
     // Grid area
     int gridY = TOPBAR_H + GAP;
@@ -252,7 +186,7 @@ void OBDView::draw() {
     DrawRectangle(col2X, row0Y, col2W, 2, C_GREEN_BAR);
     drawSecondaryCell(col2X, row0Y, col2W, rowH, "SPEED", buf, "KM/H",
                       C_BG_CELL, C_VALUE,
-                      _speed.getValue().has_value() ? clamp01(_speed.getValue().value() / BAR_SPEED_MAX) : 0.0f,
+                      _speed.getBarPct(),
                       C_GREEN_BAR, true);
 
     // ---- THROTTLE — row 0, col 3 ----
@@ -260,14 +194,14 @@ void OBDView::draw() {
     DrawRectangle(col3X, row0Y, col3W, 2, C_GREEN_BAR);
     drawSecondaryCell(col3X, row0Y, col3W, rowH, "THROTTLE", buf, "PERCENT",
                       C_BG_CELL, C_VALUE,
-                      _throttle.getValue().has_value() ? clamp01(_throttle.getValue().value() / BAR_THROTTLE_MAX) : 0.0f,
+                      _throttle.getBarPct(),
                       C_GREEN_BAR, true);
 
     // ---- MAF — row 1, col 2 ----
     fmtVal(buf, sizeof(buf), _maf.getValue(), "%.1f");
     drawSecondaryCell(col2X, row1Y, col2W, rowH, "MAF", buf, "G/SEC",
                       C_BG_CELL, C_VALUE,
-                      _maf.getValue().has_value() ? clamp01(_maf.getValue().value() / BAR_MAF_MAX) : 0.0f,
+                      _maf.getBarPct(),
                       C_GREEN_BAR, true);
 
     // ---- VOLTAGE — row 1, col 3 ----
@@ -277,11 +211,11 @@ void OBDView::draw() {
 
     // ---- OIL TEMP — row 2, col 0 ----
     fmtVal(buf, sizeof(buf), _oilTemp.getValue(), "%.0f");
-    bool  oilWarn  = _oilTemp.getValue().has_value() && _oilTemp.getValue().value() > WARN_OIL_C;
-    Color oilCol   = oilWarn ? C_RED_ACCENT : C_VALUE;
+    bool  oilWarn = _oilTemp.getValue().has_value() && _oilTemp.getValue().value() > WARN_OIL_C;
+    Color oilCol  = oilWarn ? C_RED_ACCENT : C_VALUE;
     drawSecondaryCell(col0X, row2Y, col0W, rowH, "OIL TEMP", buf, "DEGREES C",
                       C_BG_CELL, oilCol,
-                      _oilTemp.getValue().has_value() ? clamp01(_oilTemp.getValue().value() / BAR_OIL_MAX) : 0.0f,
+                      _oilTemp.getBarPct(),
                       C_YELLOW_BAR, true);
 
     // ---- INTAKE AIR — row 2, col 1 ----
