@@ -28,16 +28,7 @@ void DisplayAgent::stop() {
 }
 
 void DisplayAgent::handleInput() {
-    // Simple, only taps for now
-    // if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-    //     Vector2 pos = GetMousePosition();
-    //     auto event = std::make_unique<InputEvent>();
-    //     event->inputType = InputEvent::InputType::TAP;
-    //     event->x = pos.x;
-    //     event->y = pos.y;
-    //     ViewHandler::getInstance().pushEvent(std::move(event));
-    // }
-    Vector2 pos = GetMousePosition();
+    Vector2 pos = GetTouchPosition(0);
     auto event = std::make_unique<InputEvent>();
     event->x = pos.x;
     event->y = pos.y;
@@ -51,10 +42,12 @@ void DisplayAgent::run() {
     while (_running) {
         handleInput();
         ViewHandler::getInstance().updateView();
+        double frameStart = GetTime(); // debugging input delay
         BeginDrawing();
             ClearBackground(BLACK);
             ViewHandler::getInstance().drawView();
         EndDrawing();
+        printf("Frame: %.2fms\n", (GetTime() - frameStart) * 1000);
     }
 }
 
