@@ -41,7 +41,14 @@ static constexpr int BAR_H    = 3;
 static constexpr int GAP      = 2;
 static constexpr int PAD      = 8;
 
-OBDView::OBDView() {}
+OBDView::OBDView() {
+    _rpm.setMax(9500.0f);
+    _coolant.setMax(120.0f);
+    _speed.setMax(120.0f);
+    _throttle.setMax(100.0f);
+    _oilTemp.setMax(130.0f);
+    _maf.setMax(20.0f);
+}
 OBDView::~OBDView() {}
 void OBDView::start() {}
 void OBDView::close() {}
@@ -214,7 +221,7 @@ void OBDView::draw() {
     DrawTextEx(Assets::catFont16, "REVS / MIN",
                {(float)(col0X + PAD), (float)(row0Y + heroH - (int)FONT_16 - PAD)},
                FONT_16, 1, C_UNIT);
-    float rpmPct = _rpm.getValue().has_value() ? clamp01(_rpm.getValue().value() / _rpm.getMax()) : _rpm.getMin();
+    float rpmPct = _rpm.getBarPct();
     DrawRectangle(col0X, row0Y + heroH - BAR_H, col0W, BAR_H, C_BORDER);
     DrawRectangle(col0X, row0Y + heroH - BAR_H, (int)(rpmPct * col0W), BAR_H, C_YELLOW_BAR);
 
@@ -233,7 +240,7 @@ void OBDView::draw() {
     DrawTextEx(Assets::catFont16, "DEGREES C",
                {(float)(col1X + PAD), (float)(row0Y + heroH - (int)FONT_16 - PAD)},
                FONT_16, 1, C_UNIT);
-    float coolPct = _coolant.getValue().has_value() ? clamp01(_coolant.getValue().value() / BAR_COOLANT_MAX) : 0.0f;
+    float coolPct = _coolant.getBarPct();
     DrawRectangle(col1X, row0Y + heroH - BAR_H, col1W, BAR_H, C_BORDER);
     DrawRectangle(col1X, row0Y + heroH - BAR_H, (int)(coolPct * col1W), BAR_H, coolantBar);
 

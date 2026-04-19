@@ -1,5 +1,6 @@
 #include <Sensor.hpp>
 #include <optional>
+#include <algorithm>
 
 Sensor::Sensor(bool buf, int size) : _buf(buf), _size(size) {
 
@@ -38,4 +39,9 @@ void Sensor::setMax(float max) {
 
 float Sensor::getMax() const {
     return _max;
+}
+
+float Sensor::getBarPct() const {
+    if (!_value.has_value()) return 0.0f;
+    return std::clamp((_value.value() - _min) / (_max - _min), 0.0f, 1.0f);
 }

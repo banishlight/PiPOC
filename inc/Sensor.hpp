@@ -12,9 +12,9 @@ class Sensor {
 
         void setMin(float min);
         float getMin() const;
-
         void setMax(float max);
         float getMax() const;
+        float getBarPct() const;
 
     private:
         std::optional<float> _value;
