@@ -77,16 +77,9 @@ void MusicView::draw() {
         DrawRectangle(bx, barBaseY - bh, barW, bh, barColor);
     }
 
-    // Album art placeholder
-    // DrawRectangle(20, DISPLAY_H - 160, 120, 120, {30, 30, 30, 255});
-    // DrawRectangleLines(20, DISPLAY_H - 160, 120, 120, {60, 60, 60, 255});
-    // DrawTextEx(Assets::catFont, "ART", {52, (float)(DISPLAY_H - 108)}, 18, 1, dimText);
-
     // Track info
     DrawTextEx(Assets::catFont, _title.c_str(),  {160, (float)(DISPLAY_H - 150)}, 36, 1, WHITE);
     DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(DISPLAY_H - 106)}, 22, 1, dimText);
-    DrawTextEx(Assets::catFont, _playing ? "PLAYING" : "PAUSED",
-               {160, (float)(DISPLAY_H - 72)}, 16, 1, _playing ? barColor : dimText);
 
     for (auto& w : _widgets) w->draw();
 }
