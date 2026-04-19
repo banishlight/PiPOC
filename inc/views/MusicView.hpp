@@ -1,6 +1,8 @@
 #pragma once
 #include <ViewHandler.hpp>
 #include <widgets/Widget.hpp>
+#include <widgets/Topbar.hpp>
+#include <widgets/Bottombar.hpp>
 #include <pulse/simple.h>
 #include <pulse/error.h>
 #include <kissfft/kiss_fftr.h>
@@ -25,6 +27,9 @@ class MusicView : public View {
         bool        _playing = false;
         std::string _title   = "No track";
         std::string _artist  = "No artist";
+
+        TopBar    _topBar;
+        BottomBar _bottomBar{true};
 
         // Audio capture
         void captureLoop();

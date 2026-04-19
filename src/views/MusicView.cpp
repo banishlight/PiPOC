@@ -1,6 +1,5 @@
 #include <views/MusicView.hpp>
 #include <widgets/Button.hpp>
-#include <views/MainView.hpp>
 #include <Assets.hpp>
 #include <Config.hpp>
 #include <cmath>
@@ -10,12 +9,6 @@ MusicView::MusicView() {}
 MusicView::~MusicView() {}
 
 void MusicView::start() {
-    auto backBtn = std::make_unique<Button>(DISPLAY_W - 168, DISPLAY_H - 52, 160, 36, "BACK");
-    backBtn->setOnClick([]() {
-        ViewHandler::getInstance().switchView(std::make_unique<MainView>());
-    });
-    _widgets.push_back(std::move(backBtn));
-
     // Init PulseAudio monitor source
     pa_sample_spec spec;
     spec.format   = PA_SAMPLE_FLOAT32LE;
@@ -64,9 +57,11 @@ void MusicView::draw() {
     Color bg       = {10,  10,  10,  255};
     Color barColor = {39,  174, 96,  255};
     Color dimText  = {120, 120, 120, 255};
-    Color debugCol = {80,  80,  80,  255};
 
     DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, bg);
+
+    _topBar.draw();
+    _bottomBar.draw();
 
     // Visualizer bars
     const int barW      = 16;
@@ -92,15 +87,6 @@ void MusicView::draw() {
     DrawTextEx(Assets::catFont, _artist.c_str(), {160, (float)(DISPLAY_H - 106)}, 22, 1, dimText);
     DrawTextEx(Assets::catFont, _playing ? "PLAYING" : "PAUSED",
                {160, (float)(DISPLAY_H - 72)}, 16, 1, _playing ? barColor : dimText);
-
-    // BT status
-    bool        connected  = ViewHandler::getInstance().isDeviceConnected();
-    std::string deviceName = ViewHandler::getInstance().getConnectedDevice();
-    std::string dbg = "BT: " + std::string(connected ? "connected" : "disconnected");
-    dbg += "  |  device: " + deviceName;
-    DrawTextEx(Assets::catFont, dbg.c_str(), {8, (float)(DISPLAY_H - 20)}, 12, 1, debugCol);
-
-    DrawTextEx(Assets::catFont, std::to_string(GetFPS()).c_str(), {50, 50}, 20, 1, RED);
 
     for (auto& w : _widgets) w->draw();
 }
@@ -180,6 +166,7 @@ void MusicView::_fetchEvents() {
             case ViewEvent::Type::INPUT: {
                 auto* input = static_cast<InputEvent*>(e.get());
                 if (input->inputType == InputEvent::InputType::TAP) {
+                    if (_bottomBar.handleEvent(*input)) break;
                     for (auto& w : _widgets) {
                         if (w->handleEvent(*input)) break;
                     }
