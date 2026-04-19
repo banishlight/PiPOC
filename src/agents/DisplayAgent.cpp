@@ -29,12 +29,20 @@ void DisplayAgent::stop() {
 
 void DisplayAgent::handleInput() {
     // Simple, only taps for now
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        Vector2 pos = GetMousePosition();
-        auto event = std::make_unique<InputEvent>();
+    // if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    //     Vector2 pos = GetMousePosition();
+    //     auto event = std::make_unique<InputEvent>();
+    //     event->inputType = InputEvent::InputType::TAP;
+    //     event->x = pos.x;
+    //     event->y = pos.y;
+    //     ViewHandler::getInstance().pushEvent(std::move(event));
+    // }
+    Vector2 pos = GetMousePosition();
+    auto event = std::make_unique<InputEvent>();
+    event->x = pos.x;
+    event->y = pos.y;
+    if (IsGestureDetected(GESTURE_TAP)) {
         event->inputType = InputEvent::InputType::TAP;
-        event->x = pos.x;
-        event->y = pos.y;
         ViewHandler::getInstance().pushEvent(std::move(event));
     }
 }
