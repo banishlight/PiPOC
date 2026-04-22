@@ -15,6 +15,4 @@ class DisplayAgent {
         std::atomic<bool> _running{false};
 
         static constexpr int MAX_FPS = 60;
-        static constexpr int DIS_WIDTH = 1024;
-        static constexpr int DIS_HEIGHT = 600;
 };

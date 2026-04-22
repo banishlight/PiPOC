@@ -1,13 +1,14 @@
 #include <agents/DisplayAgent.hpp>
 #include <ViewHandler.hpp>
 #include <Assets.hpp>
+#include <Config.hpp>
 #include <chrono>
 #include <thread>
 #include <raylib.h>
 #include <memory>
 
 DisplayAgent::DisplayAgent() {
-    InitWindow(DIS_WIDTH, DIS_HEIGHT, "PiPOC");
+    InitWindow(DISPLAY_W, DISPLAY_H, "PiPOC");
     SetTargetFPS(MAX_FPS);
     Assets::load();
     // ToggleFullscreen();
