@@ -7,7 +7,7 @@ constexpr const char* SOFTWARE_NAME  = "PIPOC";
 // hardware and other global values.
 static constexpr int DISPLAY_W = 1024;
 static constexpr int DISPLAY_H = 600;
-
+static constexpr int MAX_FPS = 60;
 // OBD/ELM227 Consts
 constexpr const char* OBD_SERIAL_DEVICE = "/tmp/obd-sim";
 constexpr int         OBD_BAUD_RATE     = 38400;

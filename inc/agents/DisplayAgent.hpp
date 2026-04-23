@@ -13,6 +13,4 @@ class DisplayAgent {
         void run();
         void handleInput();
         std::atomic<bool> _running{false};
-
-        static constexpr int MAX_FPS = 60;
 };
