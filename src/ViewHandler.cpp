@@ -95,3 +95,11 @@ void ViewHandler::setCPULoad(float load) {
 float ViewHandler::getCPULoad() const {
     return _cpuLoad;
 }
+
+void ViewHandler::setGPSData(const GPSData& data) {
+    _gpsData = data;
+}
+
+const GPSData& ViewHandler::getGPSData() {
+    return _gpsData;
+}

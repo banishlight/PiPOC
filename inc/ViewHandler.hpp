@@ -77,6 +77,15 @@ class OBDEvent : public ViewEvent {
             : ViewEvent(Type::OBD), obdType(t), value(v) {}
 };
 
+struct GPSData {
+    double lat        = 0.0;
+    double lon        = 0.0;
+    float  speed      = 0.0f;  // km/h
+    float  heading    = 0.0f;  // degrees
+    int    satellites = 0;
+    bool   hasFix     = false;
+};
+
 // View — abstract base class for all views
 class View {
     public:
@@ -113,6 +122,8 @@ class ViewHandler {
         float getCPUTemp() const;
         void setCPULoad(float load);
         float getCPULoad() const;
+        void setGPSData(const GPSData& data);
+        const GPSData& getGPSData();
 
     private:
         ViewHandler();
@@ -133,4 +144,5 @@ class ViewHandler {
         bool                  _isWifiConnected = false;
         float                 _cpuTemp        = 0.0f;
         float                 _cpuLoad        = 0.0f;
+        GPSData               _gpsData        = {};
 };
