@@ -43,12 +43,12 @@ void DisplayAgent::run() {
     while (_running) {
         handleInput();
         ViewHandler::getInstance().updateView();
-        double frameStart = GetTime(); // debugging input delay
+        // double frameStart = GetTime(); // debugging input delay
         BeginDrawing();
             ClearBackground(BLACK);
             ViewHandler::getInstance().drawView();
         EndDrawing();
-        printf("Frame: %.2fms\n", (GetTime() - frameStart) * 1000);
+        // printf("Frame: %.2fms\n", (GetTime() - frameStart) * 1000);
     }
 }
 
