@@ -10,7 +10,7 @@ public:
     TopBar();
 
     void draw() override;
-    bool handleEvent(const InputEvent& event) override { return false; }
+    bool handleEvent(const InputEvent&) override { return false; }
 
     static constexpr int HEIGHT = 48;
 };

@@ -33,7 +33,7 @@ void MusicView::start() {
 
     _fftCfg    = kiss_fftr_alloc(kBufferSize, 0, nullptr, nullptr);
     _capturing = true;
-    _captureThread = std::jthread([this](std::stop_token st) { captureLoop(); });
+    _captureThread = std::jthread([this](std::stop_token) { captureLoop(); });
 }
 
 void MusicView::close() {
