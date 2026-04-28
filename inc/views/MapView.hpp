@@ -1,19 +1,20 @@
 #pragma once
 #include <ViewHandler.hpp>
-#include <widgets/Button.hpp>
-#include <memory>
-#include <vector>
+#include <widgets/Topbar.hpp>
+#include <widgets/Bottombar.hpp>
 
 class MapView : public View {
 public:
     MapView();
     ~MapView();
-    void start()  override;
-    void close()  override;
-    void draw()   override;
-    int  logic()  override;
+    void draw()  override;
+    int  logic() override;
+    void start() override;
+    void close() override;
 
 private:
     void _fetchEvents();
-    std::vector<std::unique_ptr<Button>> _widgets;
+
+    TopBar    _topBar;
+    BottomBar _bottomBar{true};
 };

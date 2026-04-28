@@ -1,31 +1,25 @@
 #include <views/MapView.hpp>
-#include <views/MainView.hpp>
-#include <ViewHandler.hpp>
-#include <Config.hpp>
 #include <Assets.hpp>
+#include <Config.hpp>
+#include <ViewHandler.hpp>
 #include <raylib.h>
+#include <cstdio>
+#include <cmath>
 
-static constexpr Color BG         = {10,  10,  10,  255};
-static constexpr Color BG2        = {15,  15,  15,  255};
-static constexpr Color BORDER     = {26,  26,  26,  255};
-static constexpr Color RED_ACCENT = {255, 40,  0,   255};
-static constexpr Color TEXT_DIM   = {80,  80,  80,  255};
-static constexpr Color TEXT_BRIGHT= {220, 220, 220, 255};
+static constexpr Color C_BG     = {10,  10,  10,  255};
+static constexpr Color C_BORDER = {26,  26,  26,  255};
+static constexpr Color C_VALUE  = {255, 255, 255, 255};
+static constexpr Color C_UNIT   = {68,  68,  68,  255};
+static constexpr Color C_WARN   = {180, 30,  30,  255};
+static constexpr Color C_GOOD   = {0,   180, 100, 255};
+
+static constexpr float FONT_24 = 24.0f;
+static constexpr int   PAD     = 10;
 
 MapView::MapView() {}
 MapView::~MapView() {}
-
-void MapView::start() {
-    auto backBtn = std::make_unique<Button>(DISPLAY_W - 168, DISPLAY_H - 52, 160, 36, "BACK");
-    backBtn->setOnClick([]() {
-        ViewHandler::getInstance().switchView(std::make_unique<MainView>());
-    });
-    _widgets.push_back(std::move(backBtn));
-}
-
-void MapView::close() {
-    _widgets.clear();
-}
+void MapView::start() {}
+void MapView::close() {}
 
 int MapView::logic() {
     _fetchEvents();
@@ -35,42 +29,79 @@ int MapView::logic() {
 void MapView::_fetchEvents() {
     auto events = ViewHandler::getInstance().popViewEvents();
     for (auto& e : events) {
-        if (e->type != ViewEvent::Type::INPUT) continue;
-        auto* input = static_cast<InputEvent*>(e.get());
-        if (input->inputType != InputEvent::InputType::TAP) continue;
-        for (auto& w : _widgets) {
-            if (w->handleEvent(*input)) break;
+        switch (e->type) {
+            case ViewEvent::Type::INPUT: {
+                auto* input = static_cast<InputEvent*>(e.get());
+                if (input->inputType == InputEvent::InputType::TAP)
+                    _bottomBar.handleEvent(*input);
+                break;
+            }
+            default:
+                break;
         }
     }
 }
 
 void MapView::draw() {
-    DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, BG);
+    DrawRectangle(0, 0, DISPLAY_W, DISPLAY_H, C_BG);
 
-    // Corner brackets
-    int bSize = 20, bThick = 2;
-    DrawRectangle(8, 8, bSize, bThick, RED_ACCENT);
-    DrawRectangle(8, 8, bThick, bSize, RED_ACCENT);
-    DrawRectangle(DISPLAY_W - 8 - bSize, 8, bSize, bThick, RED_ACCENT);
-    DrawRectangle(DISPLAY_W - 8 - bThick, 8, bThick, bSize, RED_ACCENT);
-    DrawRectangle(8, DISPLAY_H - 8 - bThick, bSize, bThick, RED_ACCENT);
-    DrawRectangle(8, DISPLAY_H - 8 - bSize, bThick, bSize, RED_ACCENT);
-    DrawRectangle(DISPLAY_W - 8 - bSize, DISPLAY_H - 8 - bThick, bSize, bThick, RED_ACCENT);
-    DrawRectangle(DISPLAY_W - 8 - bThick, DISPLAY_H - 8 - bSize, bThick, bSize, RED_ACCENT);
+    _topBar.draw();
+    _bottomBar.draw();
 
-    // Top bar
-    DrawRectangle(0, 0, DISPLAY_W, 36, BG2);
-    DrawRectangle(0, 35, DISPLAY_W, 1, BORDER);
-    DrawTextEx(Assets::catFont16, "NAVIGATION", {16, 10}, 16, 3, TEXT_DIM);
+    const GPSData& gps = ViewHandler::getInstance().getGPSData();
 
-    // Placeholder
-    const char* msg = "GPS HARDWARE NOT INSTALLED";
-    int mw = (int)MeasureTextEx(Assets::catFont24, msg, 24, 3).x;
-    DrawTextEx(Assets::catFont24, msg, {(float)((DISPLAY_W - mw) / 2), (float)(DISPLAY_H / 2 - 12)}, 24, 3, TEXT_DIM);
+    char buf[64];
 
-    // Bottom bar
-    DrawRectangle(0, DISPLAY_H - 40, DISPLAY_W, 40, BG2);
-    DrawRectangle(0, DISPLAY_H - 40, DISPLAY_W, 1, BORDER);
+    // Info bar sits just above the bottom bar
+    int barH  = 48;
+    int barY  = DISPLAY_H - BottomBar::HEIGHT - barH;
+    DrawRectangle(0, barY, DISPLAY_W, barH, {10, 10, 10, 210});
+    DrawRectangle(0, barY, DISPLAY_W, 1, C_BORDER);
 
-    for (auto& w : _widgets) w->draw();
+    float ty = barY + (barH / 2 - (int)FONT_24 / 2);
+    int   rx = DISPLAY_W - PAD;
+
+    // Fix status + satellites — far right
+    Color fixCol = gps.hasFix ? C_GOOD : C_WARN;
+    const char* fixLabel = gps.hasFix ? "FIX" : "NO FIX";
+    snprintf(buf, sizeof(buf), "%s  %dSAT", fixLabel, gps.satellites);
+    int fixW = (int)MeasureTextEx(Assets::catFont24, buf, FONT_24, 1).x;
+    rx -= fixW;
+    DrawTextEx(Assets::catFont24, buf, {(float)rx, ty}, FONT_24, 1, fixCol);
+    rx -= PAD;
+    DrawRectangle(rx, barY + 8, 1, barH - 16, C_BORDER);
+    rx -= PAD;
+
+    // Heading
+    if (gps.hasFix)
+        snprintf(buf, sizeof(buf), "%.1f DEG", gps.heading);
+    else
+        snprintf(buf, sizeof(buf), "-- DEG");
+    int hdgW = (int)MeasureTextEx(Assets::catFont24, buf, FONT_24, 1).x;
+    rx -= hdgW;
+    DrawTextEx(Assets::catFont24, buf, {(float)rx, ty}, FONT_24, 1, C_VALUE);
+    rx -= PAD;
+    DrawRectangle(rx, barY + 8, 1, barH - 16, C_BORDER);
+    rx -= PAD;
+
+    // Speed
+    if (gps.hasFix)
+        snprintf(buf, sizeof(buf), "%.1f KM/H", gps.speed);
+    else
+        snprintf(buf, sizeof(buf), "-- KM/H");
+    int spdW = (int)MeasureTextEx(Assets::catFont24, buf, FONT_24, 1).x;
+    rx -= spdW;
+    DrawTextEx(Assets::catFont24, buf, {(float)rx, ty}, FONT_24, 1, C_VALUE);
+    rx -= PAD;
+    DrawRectangle(rx, barY + 8, 1, barH - 16, C_BORDER);
+    rx -= PAD;
+
+    // Lat / Lon — left side
+    if (gps.hasFix)
+        snprintf(buf, sizeof(buf), "%.6f %s  %.6f %s",
+                 std::abs(gps.lat), gps.lat >= 0 ? "N" : "S",
+                 std::abs(gps.lon), gps.lon >= 0 ? "E" : "W");
+    else
+        snprintf(buf, sizeof(buf), "-- N  -- E");
+    DrawTextEx(Assets::catFont24, buf, {(float)PAD, ty}, FONT_24, 1, C_VALUE);
 }
